@@ -19,10 +19,7 @@ namespace Sleep {
     class Pi {
         private:
             npp::Window Win;
-            npp::Button Exit;
-            npp::Button Charge;
-            npp::Button Settings;
-
+        
             Timing::Alarm Uptime[7];
             Timing::Alarm Downtime[7];
 
@@ -40,7 +37,7 @@ namespace Sleep {
 
                 // Enter Settings
                 Win.dbox(20, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, Use24Hr ? 7 : 5);
-                Win.wmstr(22, Win.gdimx() - 11, "T", MTEXT_6x6, Use24Hr ? 7 : 5);
+                Win.wmstr(22, Win.gdimx() - 11, "S", MTEXT_6x6, Use24Hr ? 7 : 5);
 
                 // Time
                 Win.wmstr(2, 40 - (!Use24Hr ? 8 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_8x8);
@@ -52,12 +49,27 @@ namespace Sleep {
             }
 
             void rSettings() {
+                // Back
+                Win.dbox(4, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, 2);
+                Win.wmstr(6, Win.gdimx() - 11, "X", MTEXT_6x6, 2);
 
+                // Toggle Time Format
+                Win.dbox(12, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, Use24Hr ? 7 : 5);
+                Win.wmstr(14, Win.gdimx() - 11, "T", MTEXT_6x6, Use24Hr ? 7 : 5);
+
+                // Time
+                Win.wmstr(2, 42 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
             }
 
             /// @brief Go into the settings menu
             /// @returns True to stay in the program, false to quit the program
-            bool settings() {
+            bool settingsMenu() {
+                npp::Button back = npp::Button(Win.gposy() + 4, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
+                npp::Button timeFormat = npp::Button(Win.gposy() + 12, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
+
+                Win.reset();
+                Win.dbox();
+
                 int ch;
 
                 while (true) {
@@ -65,7 +77,13 @@ namespace Sleep {
                     rSettings();
 
                     if ((ch = Win.gchar(false)) == KEY_MOUSE) {
-
+                        if (npp::Mouse.gmouse(ch)) {
+                            if (back.cclick() == M1_CLICK) {return true;}
+                            if (timeFormat.cclick() == M1_CLICK) {
+                                Win.wmstr(2, 42 - (!Use24Hr ? 6 : 0), Use24Hr ? "        " : "           ", MTEXT_6x6);
+                                Use24Hr = !Use24Hr;
+                            }
+                        }
                     } else {
                         if (ch == 'e') {return true;}
                         else if (ch == 'q') {return false;}
@@ -76,9 +94,6 @@ namespace Sleep {
         public:
             Pi() {
                 Win = npp::Window(LINES / 2 - 45 / 2, COLS / 2 - 60, 45, 120);
-                Exit = npp::Button(Win.gposy() + 4, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
-                Charge = npp::Button(Win.gposy() + 12, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
-                Settings = npp::Button(Win.gposy() + 20, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
 
                 for (unsigned char i = 1; i < 6; i++) {
                     Uptime[i] = Timing::Alarm(6, 0, 0, {i});
@@ -93,6 +108,10 @@ namespace Sleep {
             }
 
             int main() {
+                npp::Button exit = npp::Button(Win.gposy() + 4, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
+                npp::Button charge = npp::Button(Win.gposy() + 12, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
+                npp::Button settings = npp::Button(Win.gposy() + 20, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
+                
                 Win.dbox();
 
                 int ch;
@@ -102,9 +121,13 @@ namespace Sleep {
                     
                     if ((ch = Win.gchar(false)) == KEY_MOUSE) {
                         if (npp::Mouse.gmouse(ch)) {
-                            if (Exit.cclick() == M1_CLICK) {return npp::end(true);}
-                            if (Charge.cclick() == M1_CLICK) {IsCharging = !IsCharging;}
-                            if (Settings.cclick() == M1_CLICK) {if (!settings()) {return npp::end(true);}}
+                            if (exit.cclick() == M1_CLICK) {return npp::end(true);}
+                            if (charge.cclick() == M1_CLICK) {IsCharging = !IsCharging;}
+                            if (settings.cclick() == M1_CLICK) {
+                                if (!settingsMenu()) {return npp::end(true);}
+                                Win.reset();
+                                Win.dbox();
+                            }
                         }
                     } else {
                         if (ch == 'q') {return npp::end(true);}
