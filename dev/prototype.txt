@@ -10,43 +10,42 @@ MAIN MENU
 │                     wdy wdy wdy ,,, ___ mmm mmm mmm ___ ddd ddd ddd ddd ,,, ___ yyy yyy yyy yyy         |       |    │
 │                     wdy wdy wdy ,,, ___ mmm mmm mmm ___ ddd ddd ddd ddd ,,, ___ yyy yyy yyy yyy         |       |    │
 │                                                                                                         +-------+    │
-│                                                                                                                      │
-│                                       +--------------------------------------+                          +-------+    │
-│                                       | ALARM 01 - [str w/ max length of 25] |                          |       |    │
-│                                       | hh:mm:ss AP                          |                          |Toggle |    │
-│                                       | Sun, Mon, Tue, Wed, Thu, Fri, Sat    |                          |Chrgng |    │
-│                                       +--------------------------------------+                          |       |    │
-│                                       +--------------------------------------+                          |       |    │
-│                                       | ALARM 02 - [str w/ max length of 25] |                          +-------+    │
-│                                       | hh:mm:ss AP                          |                                       │
-│                                       | Sun, Mon, Tue, Wed, Thu, Fri, Sat    |                          +-------+    │
-│                                       +--------------------------------------+                          |       |    │
-│                                       +--------------------------------------+                          |Change |    │
-│                                       | ALARM 03 - [str w/ max length of 25] |                          |Sttngs |    │
-│                                       | hh:mm:ss AP                          |                          |       |    │
-│                                       | Sun, Mon, Tue, Wed, Thu, Fri, Sat    |                          |       |    │
-│                                       +--------------------------------------+                          +-------+    │
-│                                       +--------------------------------------+                                       │
-│                                       | ALARM 04 - [str w/ max length of 25] |                          +-------+    │
-│                                       | hh:mm:ss AP                          |                          |       |    │
-│                                       | Sun, Mon, Tue, Wed, Thu, Fri, Sat    |                          |View   |    │
-│                                       +--------------------------------------+                          |Stats  |    │
-│                                       +--------------------------------------+                          |       |    │
-│                                       | ALARM 05 - [str w/ max length of 25] |                          |       |    │
-│                                       | hh:mm:ss AP                          |                          +-------+    │
-│                                       | Sun, Mon, Tue, Wed, Thu, Fri, Sat    |                                       │
-│                                       +--------------------------------------+                          +-------+    │
-│                                                                                                         |       |    │
-│                                                                                                         |       |    │
-│                                                                                                         |       |    │
-│                                                                                                         |       |    │
-│                                                                                                         |       |    │
+│                                     +------------------------------------------+                                     │
+│                                     | AAA LLL AAA RRR MMM SSS :::              |                        +-------+    │
+│                                     | AAA LLL AAA RRR MMM SSS :::              |                        |       |    │
+│                                     | AAA LLL AAA RRR MMM SSS :::              |                        |Toggle |    │
+│                                     |                                          |                        |Chrgng |    │
+│                                     | +--------------------------------------+ |                        |       |    │
+│                                     | | ALARM 01 - [str w/ max length of 25] | |                        |       |    │
+│                                     | | hh:mm:ss AP                          | |                        +-------+    │
+│                                     | | Sun, Mon, Tue, Wed, Thu, Fri, Sat    | |                                     │
+│                                     | +--------------------------------------+ |                        +-------+    │
+│                                     | +--------------------------------------+ |                        |       |    │
+│                                     | | ALARM 02 - [str w/ max length of 25] | |                        |Change |    │
+│                                     | | hh:mm:ss AP                          | |                        |Sttngs |    │
+│                                     | | Sun, Mon, Tue, Wed, Thu, Fri, Sat    | |                        |       |    │
+│                                     | +--------------------------------------+ |                        |       |    │
+│                                     | +--------------------------------------+ |                        +-------+    │
+│                                     | | ALARM 03 - [str w/ max length of 25] | |                                     │
+│                                     | | hh:mm:ss AP                          | |                        +-------+    │
+│                                     | | Sun, Mon, Tue, Wed, Thu, Fri, Sat    | |                        |       |    │
+│                                     | +--------------------------------------+ |                        |View   |    │
+│                                     | +--------------------------------------+ |                        |Stats  |    │
+│                                     | | ALARM 04 - [str w/ max length of 25] | |                        |       |    │
+│                                     | | hh:mm:ss AP                          | |                        |       |    │
+│                                     | | Sun, Mon, Tue, Wed, Thu, Fri, Sat    | |                        +-------+    │
+│                                     | +--------------------------------------+ |                                     │
+│                                     | +--------------------------------------+ |                        +-------+    │
+│                                     | | ALARM 05 - [str w/ max length of 25] | |                        |       |    │
+│                                     | | hh:mm:ss AP                          | |                        |       |    │
+│                                     | | Sun, Mon, Tue, Wed, Thu, Fri, Sat    | |                        |       |    │
+│                                     | +--------------------------------------+ |                        |       |    │
+│                                     +------------------------------------------+                        |       |    │
 │                                                                                                         +-------+    │
 │  Downtime (Wednesday): 22:00:00                                                                                      │
 │  Uptime   (Wednesday): 06:00:00                                                                                      │
 │                                                                                                                      │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-
 SETTINGS MENU
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                                                                                                                      │
@@ -95,52 +94,51 @@ SETTINGS MENU
 │                                                                                                                      │
 │                                                                                                                      │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-
-UPTIME/DOWNTIME EDITING MENU
+TRANSITION POINT EDITING MENU
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                                                                                                                      │
 │                                     hhh hhh ::: mmm mmm ::: sss sss ___ APM APM                                      │
 │                                     hhh hhh ::: mmm mmm ::: sss sss ___ APM APM                                      │
-│                                     hhh hhh ::: mmm mmm ::: sss sss ___ APM APM                         +-------+    │
-│                                                                                                         |       |    │
-│                                                                                                         |       |    │
-│                                                                                                         | Back  |    │
-│                                                                                                         |       |    │
-│                                                                                                         |       |    │
-│                                                                                                         +-------+    │
-│                                                                                                                      │
-│                                       +-----------------+  +-----------------+                                       │
-│                                       |  Change Uptime  |  | Change Downtime |                                       │
-│                                       |                 |  |                 |                                       │
-│                                       |  WED: 06:00:00  |  |  WED: 22:00:00  |                                       │
-│                                       +-----------------+  +-----------------+                                       │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
+│   +-------+                                 hhh hhh ::: mmm mmm ::: sss sss                             +-------+    │
+│   |       |                                                                                             |       |    │
+│   |       |    +-----------------------------------------------------------------------------------+    |       |    │
+│   |Change |    |                                                                                   |    | Back  |    │
+│   |Main   |    |    CCCC HHHH AAAA NNNN GGGG EEEE ____ DDDD OOOO WWWW NNNN TTTT IIII MMMM EEEE     |    |       |    │
+│   |       |    |    CCCC HHHH AAAA NNNN GGGG EEEE ____ DDDD OOOO WWWW NNNN TTTT IIII MMMM EEEE     |    |       |    │
+│   +-------+    |         CCCC HHHH AAAA NNNN GGGG EEEE ____ UUUU PPPP TTTT IIII MMMM EEEE          |    +-------+    │
+│                |         CCCC HHHH AAAA NNNN GGGG EEEE ____ UUUU PPPP TTTT IIII MMMM EEEE          |                 │
+│   +-------+    |                                                                                   |    +-------+    │
+│   |       |    |         --- ___ PPP RRR III MMM AAA RRR YYY ___ TTT III MMM EEE ___ ---           |    |       |    │
+│   |       |    |         --- ___ WWW AAA RRR NNN III NNN GGG ___ TTT III MMM EEE ___ ---           |    |       |    │
+│   |Change |    |            --- ___ BBB UUU FFF FFF EEE RRR ___ TTT III MMM EEE ___ ---            |    | Copy  |    │
+│   |Warning|    |                                                                                   |    | Time  |    │
+│   |       |    |                      +-------+      +-------+      +-------+                      |    |       |    │
+│   +-------+    |                      |  ^^^  |      |  ^^^  |      |  ^^^  |                      |    +-------+    │
+│                |                      |  ^^^  |      |  ^^^  |      |  ^^^  |                      |                 │
+│   +-------+    |                      |  ^^^  |      |  ^^^  |      |  ^^^  |                      |    +-------+    │
+│   |       |    |   +-----------+      +-------+      +-------+      +-------+      +-----------+   |    |       |    │
+│   |       |    |   |           |                                                   |           |   |    |       |    │
+│   |Change |    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss      | AAPP MMMM |   |    | Paste |    │
+│   |Buffer |    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss      | AAPP MMMM |   |    | Time  |    │
+│   |       |    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss      | AAPP MMMM |   |    |       |    │
+│   +-------+    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss      | AAPP MMMM |   |    +-------+    │
+│                |   |           |                                                   |           |   |                 │
+│   +-------+    |   +-----------+      +-------+      +-------+      +-------+      +-----------+   |    +-------+    │
+│   |       |    |                      |  vvv  |      |  vvv  |      |  vvv  |                      |    |       |    │
+│   |       |    |                      |  vvv  |      |  vvv  |      |  vvv  |                      |    |       |    │
+│   | Sync  |    |                      |  vvv  |      |  vvv  |      |  vvv  |                      |    | Sync  |    │
+│   | Times |    |                      +-------+      +-------+      +-------+                      |    | Days  |    │
+│   |       |    |                                                                                   |    |       |    │
+│   +-------+    +-----------------------------------------------------------------------------------+    +-------+    │
 │                                                                                                                      │
 │                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
+│   +-------------+ +-------------+ +-------------+ +-------------+ +-------------+ +-------------+ +-------------+    │
+│   |             | |             | |             | |             | |             | |             | |             |    │
+│   | SSS UUU NNN | | MMM OOO NNN | | TTT UUU EEE | | WWW EEE DDD | | TTT HHH UUU | | FFF RRR III | | SSS AAA TTT |    │
+│   | SSS UUU NNN | | MMM OOO NNN | | TTT UUU EEE | | WWW EEE DDD | | TTT HHH UUU | | FFF RRR III | | SSS AAA TTT |    │
+│   | SSS UUU NNN | | MMM OOO NNN | | TTT UUU EEE | | WWW EEE DDD | | TTT HHH UUU | | FFF RRR III | | SSS AAA TTT |    │
+│   |             | |             | |             | |             | |             | |             | |             |    │
+│   +-------------+ +-------------+ +-------------+ +-------------+ +-------------+ +-------------+ +-------------+    │
 │                                                                                                                      │
 │                                                                                                                      │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘

@@ -120,35 +120,6 @@ namespace Timing {
                 setTime(TimeStr);
             }
 
-            void setTime(std::string input) {
-                TimeStr = input;
-                SecondStr = getTimeStr().substr(17, 2);
-                SecondNum = std::stoi(SecondStr);
-                MinuteStr = getTimeStr().substr(14, 2);
-                MinuteNum = std::stoi(MinuteStr);
-                HourStr = getTimeStr().substr(11, 2);
-                HourNum = std::stoi(HourStr);
-                DayStr = getTimeStr().substr(8, 2);
-                DayNum = std::stoi(DayStr);
-                WeekdayStr = getTimeStr().substr(0, 3);
-                WeekdayNum = Keys.weekdayNums.at(WeekdayStr);
-                MonthStr = getTimeStr().substr(4, 3);
-                MonthNum = Keys.monthNums.at(MonthStr);
-                YearStr = getTimeStr().substr(20);
-                if (YearStr[YearStr.length() - 1] == '\n' || YearStr[YearStr.length() - 1] == '\0') {YearStr.erase(YearStr.length() - 1);}
-                YearNum = std::strtoul(YearStr.c_str(), NULL, 0);
-            }
-            void setTime(unsigned char weekday, unsigned char month, unsigned char day, unsigned char hour, unsigned char minute, unsigned char second, unsigned long year) {
-                weekday = weekday < 0 ? 0 : (weekday > 6 ? 6 : weekday);
-                month = month < 0 ? 0 : (month > 11 ? 11 : month);
-                day = day < 1 ? 1 : (day > ((day == 29 && month == FEBRUARY) ? 29 : Keys.monthDays[month]) ? Keys.monthDays[month] : day);
-                hour = hour < 0 ? 0 : (hour > 23 ? 23 : hour);
-                minute = minute < 0 ? 0 : (minute > 59 ? 59 : minute);
-                second = second < 0 ? 0 : (second > 59 ? 59 : second);
-                year = year < 0 ? 0 : year;
-
-                setTime(Keys.weekdayNamesAbb[weekday] + " " + Keys.monthNamesAbb[month] + " " + (day < 10 ? "0" : "") + std::to_string(day) + " " + (hour < 10 ? "0" : "") + std::to_string(hour) + ":" + (minute < 10 ? "0" : "") + std::to_string(minute) + ":" + (second < 10 ? "0" : "") + std::to_string(second) + " " + std::to_string(year));
-            }
             void update(bool realSync = DefaultParams.RealSync) {
                 std::time_t t = realSync ? std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) : TimeManip.update();
 
@@ -156,6 +127,67 @@ namespace Timing {
                 TimeNum = (unsigned long)t;
                 
                 setTime(TimeStr);
+            }
+
+            void setTime(std::string input) {
+                TimeStr = input;
+                
+                SecondStr = TimeStr.substr(17, 2);
+                SecondNum = std::stoi(SecondStr);
+                
+                MinuteStr = TimeStr.substr(14, 2);
+                MinuteNum = std::stoi(MinuteStr);
+                
+                HourStr = TimeStr.substr(11, 2);
+                HourNum = std::stoi(HourStr);
+                
+                DayStr = TimeStr.substr(8, 2);
+                DayNum = std::stoi(DayStr);
+                if (DayStr[0] == ' ') {DayStr[0] = '0';}
+                
+                WeekdayStr = TimeStr.substr(0, 3);
+                WeekdayNum = Keys.weekdayNums.at(WeekdayStr);
+                
+                MonthStr = TimeStr.substr(4, 3);
+                MonthNum = Keys.monthNums.at(MonthStr);
+                
+                YearStr = TimeStr.substr(20);
+                if (YearStr[YearStr.length() - 1] == '\n' || YearStr[YearStr.length() - 1] == '\0') {YearStr.erase(YearStr.length() - 1);}
+                YearNum = std::strtoul(YearStr.c_str(), NULL, 0);
+            }
+            void setTime(unsigned char weekday, unsigned char month, unsigned char day, unsigned char hour, unsigned char minute, unsigned char second, unsigned long year) {
+                weekday = weekday < 0 ? 0 : (weekday > 6 ? 6 : weekday);
+                month = month < 0 ? 0 : (month > 11 ? 11 : month);
+                day = day < 1 ? 1 : (day > ((day == 29 && month == FEBRUARY && checkLeapYear(year)) ? 29 : Keys.monthDays[month]) ? Keys.monthDays[month] : day);
+                hour = hour < 0 ? 0 : (hour > 23 ? 23 : hour);
+                minute = minute < 0 ? 0 : (minute > 59 ? 59 : minute);
+                second = second < 0 ? 0 : (second > 59 ? 59 : second);
+                year = year < 0 ? 0 : year;
+
+                setTime(Keys.weekdayNamesAbb[weekday] + " " + Keys.monthNamesAbb[month] + " " + (day < 10 ? "0" : "") + std::to_string(day) + " " + (hour < 10 ? "0" : "") + std::to_string(hour) + ":" + (minute < 10 ? "0" : "") + std::to_string(minute) + ":" + (second < 10 ? "0" : "") + std::to_string(second) + " " + std::to_string(year));
+            }
+            
+            bool setHour(unsigned char hour) {
+                if (hour < 0 || hour >= 24) {return false;}
+                
+                setTime(WeekdayNum, MonthNum, DayNum, hour, MinuteNum, SecondNum, YearNum);
+
+                return true;
+            }
+
+            bool setMinute(unsigned char minute) {
+                if (minute < 0 || minute >= 60) {return false;}
+                
+                setTime(WeekdayNum, MonthNum, DayNum, HourNum, minute, SecondNum, YearNum);
+
+                return true;
+            }
+            bool setSecond(unsigned char second) {
+                if (second < 0 || second >= 60) {return false;}
+                
+                setTime(WeekdayNum, MonthNum, DayNum, HourNum, MinuteNum, second, YearNum);
+
+                return true;
             }
 
             const std::string hourSuffix() {return (HourNum >= 12 && HourNum < 24) ? "PM" : "AM";}
@@ -179,7 +211,7 @@ namespace Timing {
             const std::string getHourStr(bool use24Hr = DefaultParams.Use24Hr, bool addSuffix = false) {return use24Hr ? HourStr : ((hour24to12(HourNum) < 10 ? "0" : "") + std::to_string(hour24to12(HourNum)) + (addSuffix ? hourSuffix() : ""));}
 
             const unsigned short getDayNum() {return DayNum;}
-            const std::string getDayStr(bool addSuffix = DefaultParams.AddSuffix) {return !addSuffix ? DayStr : (DayStr + (DayStr[1] == '1' && DayNum != 11 ? "st" : (DayStr[1] == '2' && DayNum != 12 ? "nd" : (DayStr[1] == '3' && DayNum != 13 ? "rd" : "th"))));}
+            const std::string getDayStr(bool addSuffix = DefaultParams.AddSuffix) {return !addSuffix ? DayStr : ((DayStr + (DayStr[1] == '1' && DayNum != 11 ? "st" : (DayStr[1] == '2' && DayNum != 12 ? "nd" : (DayStr[1] == '3' && DayNum != 13 ? "rd" : "th")))));}
 
             const unsigned short getWeekdayNum() {return WeekdayNum;}
             const std::string getWeekdayStr(bool full = DefaultParams.FullName) {return full ? Keys.weekdayNamesFull.at(WeekdayStr) : WeekdayStr;}
@@ -191,7 +223,7 @@ namespace Timing {
             const std::string getYearStr() {return YearStr;}
 
             const std::string getTimeFormatted(bool use24Hr = DefaultParams.Use24Hr) {return getHourStr(use24Hr) + ":" + getMinuteStr() + ":" + getSecondStr() + (!use24Hr ? " " + hourSuffix() : "");}
-
+            const std::string getDateFormatted(bool full = DefaultParams.FullName, bool addSuffix = DefaultParams.AddSuffix) {return getWeekdayStr(false) + ", " + getMonthStr(false) + " " + getDayStr(true) + ", " + getYearStr();}
 
             const unsigned short secondsInMinute() {return SecondNum;}
 
@@ -292,8 +324,8 @@ namespace Timing {
 
             const std::string getTimeFormatted(bool use24Hr = true) {return Time.getTimeFormatted(use24Hr);}
 
-            std::vector<unsigned char> getDaysRaw() {return Days;}
-            std::string getDaysStr(bool shorten = true, bool full = false) {
+            const std::vector<unsigned char> getDaysRaw() {return Days;}
+            const std::string getDaysStr(bool shorten = true, bool full = false) {
                 std::string output;
                 bool weekdays = true;
                 bool weekend = true;
@@ -308,6 +340,10 @@ namespace Timing {
                 output.erase(output.length() - 2, 2);
                 return shorten ? (weekdays && Days.size() == 5 ? "Weekdays" : (weekend && Days.size() == 2 ? "Weekend Days" : output)) : output;
             }
+    
+            bool setHour(unsigned char hour = Timing::mtime.getHourNum()) {return Time.setHour(hour);}
+            bool setMinute(unsigned char minute = Timing::mtime.getMinuteNum()) {return Time.setMinute(minute);}
+            bool setSecond(unsigned char second = Timing::mtime.getSecondNum()) {return Time.setSecond(second);}
     };
 }
 

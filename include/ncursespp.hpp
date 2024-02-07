@@ -10,6 +10,43 @@
 #include <cmath>
 #include <ctime>
 
+/// @brief The color pair for black on black (assuming unchanged default color initiations)
+#define NPP_BLACK 0
+/// @brief The color pair for white on black (assuming unchanged default color initiations)
+#define NPP_WHITE 1
+/// @brief The color pair for light gray on black (assuming unchanged default color initiations)
+#define NPP_LIGHT_GRAY 2
+/// @brief The color pair for light grey on black (assuming unchanged default color initiations)
+#define NPP_LIGHT_GREY 2
+/// @brief The color pair for dark gray on black (assuming unchanged default color initiations)
+#define NPP_DARK_GRAY 3
+/// @brief The color pair for dark grey on black (assuming unchanged default color initiations)
+#define NPP_DARK_GREY 3
+/// @brief The color pair for brown on black (assuming unchanged default color initiations)
+#define NPP_BROWN 4
+/// @brief The color pair for red on black (assuming unchanged default color initiations)
+#define NPP_RED 5
+/// @brief The color pair for maroon on black (assuming unchanged default color initiations)
+#define NPP_MAROON 6
+/// @brief The color pair for orange on black (assuming unchanged default color initiations)
+#define NPP_ORANGE 7
+/// @brief The color pair for yellow on black (assuming unchanged default color initiations)
+#define NPP_YELLOW 8
+/// @brief The color pair for lime on black (assuming unchanged default color initiations)
+#define NPP_LIME 9
+/// @brief The color pair for green on black (assuming unchanged default color initiations)
+#define NPP_GREEN 10
+/// @brief The color pair for cyan on black (assuming unchanged default color initiations)
+#define NPP_CYAN 11
+/// @brief The color pair for teal on black (assuming unchanged default color initiations)
+#define NPP_TEAL 12
+/// @brief The color pair for blue on black (assuming unchanged default color initiations)
+#define NPP_BLUE 13
+/// @brief The color pair for magenta on black (assuming unchanged default color initiations)
+#define NPP_MAGENTA 14
+/// @brief The color pair for purple on black (assuming unchanged default color initiations)
+#define NPP_PURPLE 15
+
 /// @brief Unknown mouse input
 #define M_UNKNOWN -1
 /// @brief Mouse 1 (Left Click) being pressed
@@ -98,14 +135,22 @@
 /// @brief Matrix Text in an 8x8 grid (4x4 characters)
 #define MTEXT_8x8 1
 
+/// @brief Any character that isn't a box-drawing one
 #define STYLE_NONE 0
+/// @brief Box-drawing characters with a light line weight
 #define STYLE_LIGHT 1
+/// @brief Box-drawing characters with a heavy line weight
 #define STYLE_HEAVY 2
+/// @brief Box-drawing characters with two lightweight lines (doubled lines)
 #define STYLE_DOUBLED 3
 
+/// @brief The top edge of box-drawing characters
 #define DIR_UP 0
+/// @brief The bottom edge of box-drawing characters
 #define DIR_DOWN 1
+/// @brief The left edge of box drawing characters
 #define DIR_LEFT 2
+/// @brief The right edge of box-drawing characters
 #define DIR_RIGHT 3
 
 /// @brief ncursespp - A namespace that provides alternate classes/functions to the ones from ncurses.h designed to make programming TUIs easier; there is a decent chance that some functionality is missing from the original header file
@@ -113,7 +158,7 @@ namespace npp {
     /// @brief Default values that can be changed in place of providing parameter arguments for many functions
     static struct {
         /// @brief Color pair
-        unsigned char Color = 1;
+        unsigned char Color = NPP_WHITE;
         /// @brief The set of attributes to use by default when writing to the window
         std::string Attributes = "";
         /// @brief The pair of y (row) and x (col) offsets to use when chaining writing functions
@@ -1895,7 +1940,7 @@ namespace npp {
         raw();
         srand(time(NULL));
 
-        if (!has_colors() || !can_change_color()) {
+        if (!can_change_color() || !has_colors()) {
             mvwprintw(stdscr, LINES / 2 - 1, COLS / 2 - 50, "Warning: Your terminal doesn't support full color capabilites...");
             mvwprintw(stdscr, LINES / 2, COLS / 2 - 50, "ncursespp requires a terminal that allows for the changing of colors, so go find one that will work");
             mvwprintw(stdscr, LINES / 2 + 1, COLS / 2 - 50, "Press any key to continue...");
@@ -1907,18 +1952,26 @@ namespace npp {
 
         start_color();
 
-        init_color(0, 0, 0, 0);        // Black
-        init_color(1, 999, 999, 999);  // White
-        init_color(2, 999, 0, 0);      // Red
-        init_color(3, 0, 999, 0);      // Green
-        init_color(4, 999, 999, 0);    // Yellow
-        init_color(5, 0, 0, 999);      // Blue
-        init_color(6, 999, 0, 999);    // Magenta
-        init_color(7, 0, 999, 999);    // Cyan
-
-        init_pair(0, 1, 0);
-        for (unsigned char i = 0; i < 8; i++) {
-            init_pair(i + 1, i + 1, 0);
+        init_color(NPP_BLACK, 0, 0, 0);
+        init_color(NPP_WHITE, 999, 999, 999);
+        init_color(NPP_LIGHT_GRAY, 666, 666, 666);
+        init_color(NPP_DARK_GRAY, 333, 333, 333);
+        init_color(NPP_BROWN, 460, 235, 75);
+        init_color(NPP_RED, 999, 0, 0);
+        init_color(NPP_MAROON, 450, 0, 0);
+        init_color(NPP_ORANGE, 999, 450, 0);
+        init_color(NPP_YELLOW, 999, 999, 0);
+        init_color(NPP_LIME, 0, 999, 0);
+        init_color(NPP_GREEN, 0, 450, 0);
+        init_color(NPP_CYAN, 0, 999, 999);
+        init_color(NPP_TEAL, 0, 450, 450);
+        init_color(NPP_BLUE, 0, 0, 999);
+        init_color(NPP_MAGENTA, 999, 0, 999);
+        init_color(NPP_PURPLE, 450, 0, 450);
+        
+        init_pair(0, NPP_WHITE, NPP_BLACK);
+        for (unsigned char i = 1; i < 16; i++) {
+            init_pair(i, i, NPP_BLACK);
         }
 
         if (useMouse) {
@@ -1937,6 +1990,7 @@ namespace npp {
     /// @returns funcReturn
     int end(bool useMouse = false, int funcReturn = 0) {
         endwin();
+        // if (useMouse) {printf("\033[?1003h\n");}
         return funcReturn;
     }
 }
