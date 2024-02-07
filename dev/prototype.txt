@@ -108,10 +108,10 @@ TRANSITION POINT EDITING MENU
 │   +-------+    |         CCCC HHHH AAAA NNNN GGGG EEEE ____ UUUU PPPP TTTT IIII MMMM EEEE          |    +-------+    │
 │                |         CCCC HHHH AAAA NNNN GGGG EEEE ____ UUUU PPPP TTTT IIII MMMM EEEE          |                 │
 │   +-------+    |                                                                                   |    +-------+    │
-│   |       |    |         --- ___ PPP RRR III MMM AAA RRR YYY ___ TTT III MMM EEE ___ ---           |    |       |    │
+│   |       |    |                --- ___ MMM AAA III NNN ___ TTT III MMM EEE ___ ---                |    |       |    │
 │   |       |    |         --- ___ WWW AAA RRR NNN III NNN GGG ___ TTT III MMM EEE ___ ---           |    |       |    │
 │   |Change |    |            --- ___ BBB UUU FFF FFF EEE RRR ___ TTT III MMM EEE ___ ---            |    | Copy  |    │
-│   |Warning|    |                                                                                   |    | Time  |    │
+│   |Buffer |    |                                                                                   |    | Time  |    │
 │   |       |    |                      +-------+      +-------+      +-------+                      |    |       |    │
 │   +-------+    |                      |  ^^^  |      |  ^^^  |      |  ^^^  |                      |    +-------+    │
 │                |                      |  ^^^  |      |  ^^^  |      |  ^^^  |                      |                 │
@@ -119,7 +119,7 @@ TRANSITION POINT EDITING MENU
 │   |       |    |   +-----------+      +-------+      +-------+      +-------+      +-----------+   |    |       |    │
 │   |       |    |   |           |                                                   |           |   |    |       |    │
 │   |Change |    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss      | AAPP MMMM |   |    | Paste |    │
-│   |Buffer |    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss      | AAPP MMMM |   |    | Time  |    │
+│   |Warning|    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss      | AAPP MMMM |   |    | Time  |    │
 │   |       |    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss      | AAPP MMMM |   |    |       |    │
 │   +-------+    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss      | AAPP MMMM |   |    +-------+    │
 │                |   |           |                                                   |           |   |                 │
