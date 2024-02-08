@@ -41,16 +41,16 @@ namespace Sleep {
             void acknowledgeWarning(Timing::TimePoint t = Timing::mtime) {WarningTime.acknowledge(t);}
 
             bool setMainHour(unsigned char hour) {return MainTime.setHour(hour);}
-            bool setMainMinute(unsigned char minute) {return MainTime.setHour(minute);}
-            bool setMainSecond(unsigned char second) {return MainTime.setHour(second);}
+            bool setMainMinute(unsigned char minute) {return MainTime.setMinute(minute);}
+            bool setMainSecond(unsigned char second) {return MainTime.setSecond(second);}
 
             bool setBufferHour(unsigned char hour) {return BufferTime.setHour(hour);}
-            bool setBufferMinute(unsigned char minute) {return BufferTime.setHour(minute);}
-            bool setBufferSecond(unsigned char second) {return BufferTime.setHour(second);}
+            bool setBufferMinute(unsigned char minute) {return BufferTime.setMinute(minute);}
+            bool setBufferSecond(unsigned char second) {return BufferTime.setSecond(second);}
 
             bool setWarningHour(unsigned char hour) {return WarningTime.setHour(hour);}
-            bool setWarningMinute(unsigned char minute) {return WarningTime.setHour(minute);}
-            bool setWarningSecond(unsigned char second) {return WarningTime.setHour(second);}
+            bool setWarningMinute(unsigned char minute) {return WarningTime.setMinute(minute);}
+            bool setWarningSecond(unsigned char second) {return WarningTime.setSecond(second);}
 
             const std::string getMainTime(bool use24Hr = true) {return MainTime.getTimeFormatted(use24Hr);}
             const char getMainHourNum(bool use24Hr = true) {return MainTime.getHourNum(use24Hr);}
@@ -153,8 +153,8 @@ namespace Sleep {
                             if (back.cclick() == M1_CLICK) {
                                 return;
                             } else if (timeFormat.cclick() == M1_CLICK) {
-                                // Remove the characters representing the time in the old format
-                                Win.wmstr(2, 42 - (!Use24Hr ? 6 : 0), Use24Hr ? "        " : "           ", MTEXT_6x6);
+                                Win.reset();
+                                Win.dbox();
                                 Use24Hr = !Use24Hr;
                             } else if (changeUptime.cclick() == M1_CLICK) {
                                 settingsTransition(true);
@@ -175,19 +175,15 @@ namespace Sleep {
             void rSettingsTransition(bool uptime, unsigned char transState, unsigned char day) {
                 // Time
                 Win.wmstr(2, 42 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
-
                 // Back
                 Win.dbox(4, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
                 Win.wmstr(6, Win.gdimx() - 11, "X", MTEXT_6x6, NPP_RED);
-
                 // Copy Time
                 Win.dbox(12, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_ORANGE);
                 Win.wmstr(14, Win.gdimx() - 11, "C", MTEXT_6x6, NPP_ORANGE);
-
                 // Paste Time
                 Win.dbox(20, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_ORANGE);
                 Win.wmstr(22, Win.gdimx() - 11, "P", MTEXT_6x6, NPP_ORANGE);
-
                 // Sync Days
                 Win.dbox(28, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_YELLOW);
                 Win.wmstr(30, Win.gdimx() - 11, "D", MTEXT_6x6, NPP_YELLOW);
@@ -195,15 +191,12 @@ namespace Sleep {
                 // Change Main Time
                 Win.dbox(4, 4, 7, 9, {LIGHT_SOFT, DASHED_NONE}, transState == TRANS_MAIN ? NPP_CYAN : NPP_TEAL);
                 Win.wmstr(6, 7, "M", MTEXT_6x6, transState == TRANS_MAIN ? NPP_CYAN : NPP_TEAL);
-
                 // Change Buffer Time
                 Win.dbox(12, 4, 7, 9, {LIGHT_SOFT, DASHED_NONE}, transState == TRANS_BUFFER ? NPP_CYAN : NPP_TEAL);
                 Win.wmstr(14, 7, "B", MTEXT_6x6, transState == TRANS_BUFFER ? NPP_CYAN : NPP_TEAL);
-
                 // Change Warning Time
                 Win.dbox(20, 4, 7, 9, {LIGHT_SOFT, DASHED_NONE}, transState == TRANS_WARNING ? NPP_CYAN : NPP_TEAL);
                 Win.wmstr(22, 7, "W", MTEXT_6x6, transState == TRANS_WARNING ? NPP_CYAN : NPP_TEAL);
-
                 // Sync Times
                 Win.dbox(28, 4, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_BLUE);
                 Win.wmstr(30, 7, "T", MTEXT_6x6, NPP_BLUE);
@@ -216,13 +209,36 @@ namespace Sleep {
 
                 // Separation Box
                 Win.dbox(6, 17, 29, 85);
-
                 // Titles
                 Win.wmstr(8, 22, uptime ? " CHANGE UPTIME " : "CHANGE DOWNTIME", MTEXT_8x8);
                 Win.wmstr(13, 27 + (transState == TRANS_BUFFER ? 3 : 0) + (transState == TRANS_MAIN ? 7 : 0), transState == TRANS_MAIN ? "- Main Time -" : (transState == TRANS_BUFFER ? "- Buffer Time -" : "- Warning Time -"), MTEXT_6x6);
             
                 // Current Transition Time
-                Win.wmstr(23, 40, uptime ? (transState == TRANS_MAIN ? Uptime[day].getMainTime() : (transState == TRANS_BUFFER ? Uptime[day].getBufferTime() : Uptime[day].getWarningTime())) : (transState == TRANS_MAIN ? Downtime[day].getMainTime() : (transState == TRANS_BUFFER ? Downtime[day].getBufferTime() : Downtime[day].getWarningTime())), MTEXT_8x8);
+                Win.wmstr(23, 40, uptime ? (transState == TRANS_MAIN ? Uptime[day].getMainTime(Use24Hr) : (transState == TRANS_BUFFER ? Uptime[day].getBufferTime(Use24Hr) : Uptime[day].getWarningTime(Use24Hr))) : (transState == TRANS_MAIN ? Downtime[day].getMainTime(Use24Hr) : (transState == TRANS_BUFFER ? Downtime[day].getBufferTime(Use24Hr) : Downtime[day].getWarningTime(Use24Hr))), MTEXT_8x8);
+            
+                // Add Hour
+                Win.dbox(17, 40, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_LIME);
+                Win.wmstr(18, 43, "^", MTEXT_6x6, NPP_LIME);
+                // Add Minute
+                Win.dbox(17, 55, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_LIME);
+                Win.wmstr(18, 58, "^", MTEXT_6x6, NPP_LIME);
+                // Add Second
+                Win.dbox(17, 70, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_LIME);
+                Win.wmstr(18, 73, "^", MTEXT_6x6, NPP_LIME);
+
+                // Remove Hour
+                Win.dbox(28, 40, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
+                Win.wmstr(29, 43, "v", MTEXT_6x6, NPP_RED);
+                // Remove Minute
+                Win.dbox(28, 55, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
+                Win.wmstr(29, 58, "v", MTEXT_6x6, NPP_RED);
+                // Remove Second
+                Win.dbox(28, 70, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
+                Win.wmstr(29, 73, "v", MTEXT_6x6, NPP_RED);
+
+                // Toggle 24 Hour View
+                Win.dbox(21, 21, 8, 13, {LIGHT_SOFT, DASHED_NONE}, Use24Hr ? NPP_CYAN : NPP_TEAL);
+                Win.wmstr(23, 23, Use24Hr ? "24" : "12", MTEXT_8x8, Use24Hr ? NPP_CYAN : NPP_TEAL);
             }
 
             void settingsTransition(bool uptime) {
@@ -244,16 +260,16 @@ namespace Sleep {
                 npp::Button removeSecond = npp::Button(Win.gposy() + 28, Win.gposx() + 70, 5, 9, {M1_CLICK});
 
                 npp::Button toggle24Hr = npp::Button(Win.gposy() + 21, Win.gposx() + 21, 8, 13, {M1_CLICK});
-                npp::Button toggleAMPM = npp::Button(Win.gposy() + 21, Win.gposx() + 85, 8, 13, {M1_CLICK});
 
-                std::vector<npp::Button> weekday;
-                for (unsigned char i = 0; i < 7; i++) {weekday.emplace_back(npp::Button(Win.gposy() + Win.gdimy() - 10, Win.gposx() + 4 + i * 16, 7, 15, {M1_CLICK}));}
+                npp::Button weekday[7];
+                for (unsigned char i = 0; i < 7; i++) {weekday[i] = npp::Button(Win.gposy() + Win.gdimy() - 10, Win.gposx() + 4 + i * 16, 7, 15, {M1_CLICK});}
 
                 Win.reset();
                 Win.dbox();
 
                 int ch, state;
                 unsigned char transState = TRANS_MAIN, day = Timing::mtime.getWeekdayNum();
+                unsigned char copyHour, copyMinute, copySecond;
                 while (true) {
                     rSettingsTransition(uptime, transState, day);
                     state = update();
@@ -262,6 +278,203 @@ namespace Sleep {
                         if (npp::Mouse.gmouse(ch)) {
                             if (back.cclick() == M1_CLICK) {
                                 return;
+                            } else if (syncDays.cclick() == M1_CLICK) {
+                                TransitionPoint temp = uptime ? Uptime[day] : Downtime[day];
+                                
+                                for (unsigned char i = 0; i < 7; i++) {
+                                    if (uptime) {
+                                        Uptime[i] = temp;
+                                    } else {
+                                        Downtime[i] = temp;
+                                    }
+                                }
+                            } else if (editMain.cclick() == M1_CLICK && transState != TRANS_MAIN) {
+                                transState = TRANS_MAIN;
+                                Win.reset();
+                                Win.dbox();
+                            } else if (editBuffer.cclick() == M1_CLICK && transState != TRANS_BUFFER) {
+                                transState = TRANS_BUFFER;
+                                Win.reset();
+                                Win.dbox();
+                            } else if (editWarning.cclick() == M1_CLICK && transState != TRANS_WARNING) {
+                                transState = TRANS_WARNING;
+                                Win.reset();
+                                Win.dbox();
+                            } else if (toggle24Hr.cclick() == M1_CLICK) {
+                                Win.reset();
+                                Win.dbox();
+                                Use24Hr = !Use24Hr;
+                            }
+                            // Everything else here is specific to the Transition State, so has been split into the three possible states
+                            else {
+                                if (transState == TRANS_MAIN) {
+                                    if (syncTimes.cclick() == M1_CLICK) {
+                                        unsigned char hour = uptime ? Uptime[day].getMainHourNum() : Downtime[day].getMainHourNum();
+                                        unsigned char minute = uptime ? Uptime[day].getMainMinuteNum() : Downtime[day].getMainMinuteNum();
+                                        unsigned char second = uptime ? Uptime[day].getMainSecondNum() : Downtime[day].getMainSecondNum();
+
+                                        if (uptime) {
+                                            Uptime[day].setBufferHour(hour);
+                                            Uptime[day].setWarningHour(hour);
+                                            Uptime[day].setBufferMinute(minute);
+                                            Uptime[day].setWarningMinute(minute);
+                                            Uptime[day].setBufferSecond(second);
+                                            Uptime[day].setWarningSecond(second);
+                                        } else {
+                                            Downtime[day].setBufferHour(hour);
+                                            Downtime[day].setWarningHour(hour);
+                                            Downtime[day].setBufferMinute(minute);
+                                            Downtime[day].setWarningMinute(minute);
+                                            Downtime[day].setBufferSecond(second);
+                                            Downtime[day].setWarningSecond(second);
+                                        }
+                                    } else if (addHour.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setMainHour(Uptime[day].getMainHourNum() == 23 ? 0 : Uptime[day].getMainHourNum() + 1);}
+                                        else {Downtime[day].setMainHour(Downtime[day].getMainHourNum() == 23 ? 0 : Downtime[day].getMainHourNum() + 1);}
+                                    } else if (addMinute.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setMainMinute(Uptime[day].getMainMinuteNum() == 59 ? 0 : Uptime[day].getMainMinuteNum() + 1);}
+                                        else {Downtime[day].setMainMinute(Downtime[day].getMainMinuteNum() == 59 ? 0 : Downtime[day].getMainMinuteNum() + 1);}
+                                    } else if (addSecond.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setMainSecond(Uptime[day].getMainSecondNum() == 59 ? 0 : Uptime[day].getMainSecondNum() + 1);}
+                                        else {Downtime[day].setMainSecond(Downtime[day].getMainSecondNum() == 59 ? 0 : Downtime[day].getMainSecondNum() + 1);}
+                                    } else if (removeHour.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setMainHour(Uptime[day].getMainHourNum() == 0 ? 23 : Uptime[day].getMainHourNum() - 1);}
+                                        else {Downtime[day].setMainHour(Downtime[day].getMainHourNum() == 0 ? 23 : Downtime[day].getMainHourNum() - 1);}
+                                    } else if (removeMinute.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setMainMinute(Uptime[day].getMainMinuteNum() == 0 ? 59 : Uptime[day].getMainMinuteNum() - 1);}
+                                        else {Downtime[day].setMainMinute(Downtime[day].getMainMinuteNum() == 0 ? 59 : Downtime[day].getMainMinuteNum() - 1);}
+                                    } else if (removeSecond.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setMainSecond(Uptime[day].getMainSecondNum() == 0 ? 59 : Uptime[day].getMainSecondNum() - 1);}
+                                        else {Downtime[day].setMainSecond(Downtime[day].getMainSecondNum() == 0 ? 59 : Downtime[day].getMainSecondNum() - 1);}
+                                    } else if (copyTime.cclick() == M1_CLICK) {
+                                        copyHour = uptime ? Uptime[day].getMainHourNum() : Downtime[day].getMainHourNum();
+                                        copyMinute = uptime ? Uptime[day].getMainMinuteNum() : Downtime[day].getMainMinuteNum();
+                                        copySecond = uptime ? Uptime[day].getMainSecondNum() : Downtime[day].getMainSecondNum();
+                                    } else if (pasteTime.cclick() == M1_CLICK) {
+                                        if (uptime) {
+                                            Uptime[day].setMainHour(copyHour);
+                                            Uptime[day].setMainMinute(copyMinute);
+                                            Uptime[day].setMainSecond(copySecond);
+                                        } else {
+                                            Downtime[day].setMainHour(copyHour);
+                                            Downtime[day].setMainMinute(copyMinute);
+                                            Downtime[day].setMainSecond(copySecond);
+                                        }
+                                    }
+                                } else if (transState == TRANS_BUFFER) {
+                                    if (syncTimes.cclick() == M1_CLICK) {
+                                        unsigned char hour = uptime ? Uptime[day].getBufferHourNum() : Downtime[day].getBufferHourNum();
+                                        unsigned char minute = uptime ? Uptime[day].getBufferMinuteNum() : Downtime[day].getBufferMinuteNum();
+                                        unsigned char second = uptime ? Uptime[day].getBufferSecondNum() : Downtime[day].getBufferSecondNum();
+
+                                        if (uptime) {
+                                            Uptime[day].setMainHour(hour);
+                                            Uptime[day].setWarningHour(hour);
+                                            Uptime[day].setMainMinute(minute);
+                                            Uptime[day].setWarningMinute(minute);
+                                            Uptime[day].setMainSecond(second);
+                                            Uptime[day].setWarningSecond(second);
+                                        } else {
+                                            Downtime[day].setMainHour(hour);
+                                            Downtime[day].setWarningHour(hour);
+                                            Downtime[day].setMainMinute(minute);
+                                            Downtime[day].setWarningMinute(minute);
+                                            Downtime[day].setMainSecond(second);
+                                            Downtime[day].setWarningSecond(second);
+                                        }
+                                    } else if (addHour.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setBufferHour(Uptime[day].getBufferHourNum() == 23 ? 0 : Uptime[day].getBufferHourNum() + 1);}
+                                        else {Downtime[day].setBufferHour(Downtime[day].getBufferHourNum() == 23 ? 0 : Downtime[day].getBufferHourNum() + 1);}
+                                    } else if (addMinute.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setBufferMinute(Uptime[day].getBufferMinuteNum() == 59 ? 0 : Uptime[day].getBufferMinuteNum() + 1);}
+                                        else {Downtime[day].setBufferMinute(Downtime[day].getBufferMinuteNum() == 59 ? 0 : Downtime[day].getBufferMinuteNum() + 1);}
+                                    } else if (addSecond.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setBufferSecond(Uptime[day].getBufferSecondNum() == 59 ? 0 : Uptime[day].getBufferSecondNum() + 1);}
+                                        else {Downtime[day].setBufferSecond(Downtime[day].getBufferSecondNum() == 59 ? 0 : Downtime[day].getBufferSecondNum() + 1);}
+                                    } else if (removeHour.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setBufferHour(Uptime[day].getBufferHourNum() == 0 ? 23 : Uptime[day].getBufferHourNum() - 1);}
+                                        else {Downtime[day].setBufferHour(Downtime[day].getBufferHourNum() == 0 ? 23 : Downtime[day].getBufferHourNum() - 1);}
+                                    } else if (removeMinute.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setBufferMinute(Uptime[day].getBufferMinuteNum() == 0 ? 59 : Uptime[day].getBufferMinuteNum() - 1);}
+                                        else {Downtime[day].setBufferMinute(Downtime[day].getBufferMinuteNum() == 0 ? 59 : Downtime[day].getBufferMinuteNum() - 1);}
+                                    } else if (removeSecond.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setBufferSecond(Uptime[day].getBufferSecondNum() == 0 ? 59 : Uptime[day].getBufferSecondNum() - 1);}
+                                        else {Downtime[day].setBufferSecond(Downtime[day].getBufferSecondNum() == 0 ? 59 : Downtime[day].getBufferSecondNum() - 1);}
+                                    } else if (copyTime.cclick() == M1_CLICK) {
+                                        copyHour = uptime ? Uptime[day].getBufferHourNum() : Downtime[day].getBufferHourNum();
+                                        copyMinute = uptime ? Uptime[day].getBufferMinuteNum() : Downtime[day].getBufferMinuteNum();
+                                        copySecond = uptime ? Uptime[day].getBufferSecondNum() : Downtime[day].getBufferSecondNum();
+                                    } else if (pasteTime.cclick() == M1_CLICK) {
+                                        if (uptime) {
+                                            Uptime[day].setBufferHour(copyHour);
+                                            Uptime[day].setBufferMinute(copyMinute);
+                                            Uptime[day].setBufferSecond(copySecond);
+                                        } else {
+                                            Downtime[day].setBufferHour(copyHour);
+                                            Downtime[day].setBufferMinute(copyMinute);
+                                            Downtime[day].setBufferSecond(copySecond);
+                                        }
+                                    }
+                                } else {
+                                    if (syncTimes.cclick() == M1_CLICK) {
+                                        unsigned char hour = uptime ? Uptime[day].getWarningHourNum() : Downtime[day].getWarningHourNum();
+                                        unsigned char minute = uptime ? Uptime[day].getWarningMinuteNum() : Downtime[day].getWarningMinuteNum();
+                                        unsigned char second = uptime ? Uptime[day].getWarningSecondNum() : Downtime[day].getWarningSecondNum();
+
+                                        if (uptime) {
+                                            Uptime[day].setMainHour(hour);
+                                            Uptime[day].setBufferHour(hour);
+                                            Uptime[day].setMainMinute(minute);
+                                            Uptime[day].setBufferMinute(minute);
+                                            Uptime[day].setMainSecond(second);
+                                            Uptime[day].setBufferSecond(second);
+                                        } else {
+                                            Downtime[day].setMainHour(hour);
+                                            Downtime[day].setBufferHour(hour);
+                                            Downtime[day].setMainMinute(minute);
+                                            Downtime[day].setBufferMinute(minute);
+                                            Downtime[day].setMainSecond(second);
+                                            Downtime[day].setBufferSecond(second);
+                                        }
+                                    } else if (addHour.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setWarningHour(Uptime[day].getWarningHourNum() == 23 ? 0 : Uptime[day].getWarningHourNum() + 1);}
+                                        else {Downtime[day].setWarningHour(Downtime[day].getWarningHourNum() == 23 ? 0 : Downtime[day].getWarningHourNum() + 1);}
+                                    } else if (addMinute.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setWarningMinute(Uptime[day].getWarningMinuteNum() == 59 ? 0 : Uptime[day].getWarningMinuteNum() + 1);}
+                                        else {Downtime[day].setWarningMinute(Downtime[day].getWarningMinuteNum() == 59 ? 0 : Downtime[day].getWarningMinuteNum() + 1);}
+                                    } else if (addSecond.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setWarningSecond(Uptime[day].getWarningSecondNum() == 59 ? 0 : Uptime[day].getWarningSecondNum() + 1);}
+                                        else {Downtime[day].setWarningSecond(Downtime[day].getWarningSecondNum() == 59 ? 0 : Downtime[day].getWarningSecondNum() + 1);}
+                                    } else if (removeHour.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setWarningHour(Uptime[day].getWarningHourNum() == 0 ? 23 : Uptime[day].getWarningHourNum() - 1);}
+                                        else {Downtime[day].setWarningHour(Downtime[day].getWarningHourNum() == 0 ? 23 : Downtime[day].getWarningHourNum() - 1);}
+                                    } else if (removeMinute.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setWarningMinute(Uptime[day].getWarningMinuteNum() == 0 ? 59 : Uptime[day].getWarningMinuteNum() - 1);}
+                                        else {Downtime[day].setWarningMinute(Downtime[day].getWarningMinuteNum() == 0 ? 59 : Downtime[day].getWarningMinuteNum() - 1);}
+                                    } else if (removeSecond.cclick() == M1_CLICK) {
+                                        if (uptime) {Uptime[day].setWarningSecond(Uptime[day].getWarningSecondNum() == 0 ? 59 : Uptime[day].getWarningSecondNum() - 1);}
+                                        else {Downtime[day].setWarningSecond(Downtime[day].getWarningSecondNum() == 0 ? 59 : Downtime[day].getWarningSecondNum() - 1);}
+                                    } else if (copyTime.cclick() == M1_CLICK) {
+                                        copyHour = uptime ? Uptime[day].getWarningHourNum() : Downtime[day].getWarningHourNum();
+                                        copyMinute = uptime ? Uptime[day].getWarningMinuteNum() : Downtime[day].getWarningMinuteNum();
+                                        copySecond = uptime ? Uptime[day].getWarningSecondNum() : Downtime[day].getWarningSecondNum();
+                                    } else if (pasteTime.cclick() == M1_CLICK) {
+                                        if (uptime) {
+                                            Uptime[day].setWarningHour(copyHour);
+                                            Uptime[day].setWarningMinute(copyMinute);
+                                            Uptime[day].setWarningSecond(copySecond);
+                                        } else {
+                                            Downtime[day].setWarningHour(copyHour);
+                                            Downtime[day].setWarningMinute(copyMinute);
+                                            Downtime[day].setWarningSecond(copySecond);
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Switch the weekday to edit
+                            for (unsigned char i = 0; i < 7; i++) {
+                                if (weekday[i].cclick() == M1_CLICK) {day = i;}
                             }
                         }
                     } else {
