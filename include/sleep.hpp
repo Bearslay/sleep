@@ -1,6 +1,7 @@
 #ifndef SLEEP
 #define SLEEP
 
+#include <fstream>
 #include "ncursespp.hpp"
 #include "timing.hpp"
 
@@ -235,10 +236,6 @@ namespace Sleep {
                 // Remove Second
                 Win.dbox(28, 70, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
                 Win.wmstr(29, 73, "v", MTEXT_6x6, NPP_RED);
-
-                // Toggle 24 Hour View
-                Win.dbox(21, 21, 8, 13, {LIGHT_SOFT, DASHED_NONE}, Use24Hr ? NPP_CYAN : NPP_TEAL);
-                Win.wmstr(23, 23, Use24Hr ? "24" : "12", MTEXT_8x8, Use24Hr ? NPP_CYAN : NPP_TEAL);
             }
 
             void settingsTransition(bool uptime) {
@@ -258,8 +255,6 @@ namespace Sleep {
                 npp::Button removeHour = npp::Button(Win.gposy() + 28, Win.gposx() + 40, 5, 9, {M1_CLICK});
                 npp::Button removeMinute = npp::Button(Win.gposy() + 28, Win.gposx() + 55, 5, 9, {M1_CLICK});
                 npp::Button removeSecond = npp::Button(Win.gposy() + 28, Win.gposx() + 70, 5, 9, {M1_CLICK});
-
-                npp::Button toggle24Hr = npp::Button(Win.gposy() + 21, Win.gposx() + 21, 8, 13, {M1_CLICK});
 
                 npp::Button weekday[7];
                 for (unsigned char i = 0; i < 7; i++) {weekday[i] = npp::Button(Win.gposy() + Win.gdimy() - 10, Win.gposx() + 4 + i * 16, 7, 15, {M1_CLICK});}
@@ -300,10 +295,6 @@ namespace Sleep {
                                 transState = TRANS_WARNING;
                                 Win.reset();
                                 Win.dbox();
-                            } else if (toggle24Hr.cclick() == M1_CLICK) {
-                                Win.reset();
-                                Win.dbox();
-                                Use24Hr = !Use24Hr;
                             }
                             // Everything else here is specific to the Transition State, so has been split into the three possible states
                             else {
@@ -493,18 +484,64 @@ namespace Sleep {
                 return 0;
             }
 
+            bool readData() {
+                std::ifstream file;
+                file.open("data.txt", std::ios::in);
+
+                if (!file.is_open()) {return false;}
+
+                std::string line;
+                for (unsigned char i = 0; i < 7; i++) {
+                    std::getline(file, line);
+
+                    Uptime[i] = TransitionPoint(0, 0, 0, {i});
+                    Uptime[i].setMainHour(stoi(line.substr(0, 2)));
+                    Uptime[i].setMainMinute(stoi(line.substr(3, 2)));
+                    Uptime[i].setMainSecond(stoi(line.substr(6, 2)));
+                    Uptime[i].setBufferHour(stoi(line.substr(9, 2)));
+                    Uptime[i].setBufferMinute(stoi(line.substr(12, 2)));
+                    Uptime[i].setBufferSecond(stoi(line.substr(15, 2)));
+                    Uptime[i].setWarningHour(stoi(line.substr(18, 2)));
+                    Uptime[i].setWarningMinute(stoi(line.substr(21, 2)));
+                    Uptime[i].setWarningSecond(stoi(line.substr(24, 2)));
+                }
+                for (unsigned char i = 0; i < 7; i++) {
+                    std::getline(file, line);
+
+                    Downtime[i] = TransitionPoint(0, 0, 0, {i});
+                    Downtime[i].setMainHour(stoi(line.substr(0, 2)));
+                    Downtime[i].setMainMinute(stoi(line.substr(3, 2)));
+                    Downtime[i].setMainSecond(stoi(line.substr(6, 2)));
+                    Downtime[i].setBufferHour(stoi(line.substr(9, 2)));
+                    Downtime[i].setBufferMinute(stoi(line.substr(12, 2)));
+                    Downtime[i].setBufferSecond(stoi(line.substr(15, 2)));
+                    Downtime[i].setWarningHour(stoi(line.substr(18, 2)));
+                    Downtime[i].setWarningMinute(stoi(line.substr(21, 2)));
+                    Downtime[i].setWarningSecond(stoi(line.substr(24, 2)));
+                }
+                
+                return true;
+            }
+
+            bool writeData() {
+                std::ofstream file;
+                file.open("data.txt", std::ios::out);
+
+                if (!file.is_open()) {return false;}
+
+                for (unsigned char i = 0; i < 7; i++) {file << Uptime[i].getMainTime() + "|" + Uptime[i].getBufferTime() + "|" + Uptime[i].getWarningTime() + "\n";}
+                for (unsigned char i = 0; i < 7; i++) {file << Downtime[i].getMainTime() + "|" + Downtime[i].getBufferTime() + "|" + Downtime[i].getWarningTime() + "\n";}
+
+                return true;
+            }
+
         public:
             Pi() {
                 Win = npp::Window(LINES / 2 - 45 / 2, COLS / 2 - 60, 45, 120);
 
-                for (unsigned char i = 1; i < 6; i++) {
-                    Uptime[i] = TransitionPoint(6, 0, 0, {i});
-                    Downtime[i] = TransitionPoint(22, 0, 0, {i});
+                if (!readData()) {
+                    // Some kind of popup about not being able to retrieve data
                 }
-                Uptime[0] = TransitionPoint(7, 0, 0, {0});
-                Uptime[6] = TransitionPoint(7, 0, 0, {6});
-                Downtime[0] = TransitionPoint(23, 0, 0, {0});
-                Downtime[6] = TransitionPoint(23, 0, 0, {6});
 
                 Timing::mtime.update();
             }
@@ -523,16 +560,26 @@ namespace Sleep {
                     
                     if ((ch = Win.gchar(false)) == KEY_MOUSE) {
                         if (npp::Mouse.gmouse(ch)) {
-                            if (exit.cclick() == M1_CLICK) {return npp::end(true);}
-                            if (charge.cclick() == M1_CLICK) {IsCharging = !IsCharging;}
-                            if (settings.cclick() == M1_CLICK) {
+                            if (exit.cclick() == M1_CLICK) {
+                                if (!writeData()) {
+                                    // Some kind of pop-up about not saving settings or smth
+                                }
+                                return -1;
+                            } else if (charge.cclick() == M1_CLICK) {
+                                IsCharging = !IsCharging;
+                            } else if (settings.cclick() == M1_CLICK) {
                                 settingsMenu();
                                 Win.reset();
                                 Win.dbox();
                             }
                         }
                     } else {
-                        if (ch == 'q') {return -1;}
+                        if (ch == 'q') {
+                            if (!writeData()) {
+                                // Some kind of pop-up about not saving settings or smth
+                            }
+                            return -1;
+                        }
                     }
                 }
             }
