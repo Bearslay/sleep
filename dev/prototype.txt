@@ -116,14 +116,14 @@ TRANSITION POINT EDITING MENU
 │   +-------+    |                      |  ^^^  |      |  ^^^  |      |  ^^^  |                      |    +-------+    │
 │                |                      |  ^^^  |      |  ^^^  |      |  ^^^  |                      |                 │
 │   +-------+    |                      |  ^^^  |      |  ^^^  |      |  ^^^  |                      |    +-------+    │
-│   |       |    |   +-----------+      +-------+      +-------+      +-------+                      |    |       |    │
-│   |       |    |   |           |                                                                   |    |       |    │
-│   |Change |    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss ____ AAPP MMMM       |    | Paste |    │
-│   |Warning|    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss ____ AAPP MMMM       |    | Time  |    │
-│   |       |    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss ____ AAPP MMMM       |    |       |    │
-│   +-------+    |   | 1111 2222 |      hhhh hhhh :::: mmmm mmmm :::: ssss ssss ____ AAPP MMMM       |    +-------+    │
-│                |   |           |                                                                   |                 │
-│   +-------+    |   +-----------+      +-------+      +-------+      +-------+                      |    +-------+    │
+│   |       |    |                      +-------+      +-------+      +-------+                      |    |       |    │
+│   |       |    |                                                                                   |    |       |    │
+│   |Change |    |                      hhhh hhhh :::: mmmm mmmm :::: ssss ssss ____ AAPP MMMM       |    | Paste |    │
+│   |Warning|    |                      hhhh hhhh :::: mmmm mmmm :::: ssss ssss ____ AAPP MMMM       |    | Time  |    │
+│   |       |    |                      hhhh hhhh :::: mmmm mmmm :::: ssss ssss ____ AAPP MMMM       |    |       |    │
+│   +-------+    |                      hhhh hhhh :::: mmmm mmmm :::: ssss ssss ____ AAPP MMMM       |    +-------+    │
+│                |                                                                                   |                 │
+│   +-------+    |                      +-------+      +-------+      +-------+                      |    +-------+    │
 │   |       |    |                      |  vvv  |      |  vvv  |      |  vvv  |                      |    |       |    │
 │   |       |    |                      |  vvv  |      |  vvv  |      |  vvv  |                      |    |       |    │
 │   | Sync  |    |                      |  vvv  |      |  vvv  |      |  vvv  |                      |    | Sync  |    │
