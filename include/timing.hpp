@@ -314,6 +314,7 @@ namespace Timing {
             void toggle() {Active = !Active;}
             void switchOn() {Active = true;}
             void switchOff() {Active = false;}
+            bool getActivity() {return Active;}
 
             const char getHourNum(bool use24Hr = true) {return Time.getHourNum(use24Hr);}
             const std::string getHourStr(bool use24Hr = true, bool addSuffix = false) {return Time.getHourStr(use24Hr, addSuffix);}

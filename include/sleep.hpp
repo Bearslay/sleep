@@ -32,6 +32,21 @@ namespace Sleep {
                 MainTime = BufferTime = WarningTime = Timing::Alarm(hour, minute, second, days);
             }
 
+            void toggleMain() {MainTime.toggle();}
+            void activateMain() {MainTime.switchOn();}
+            void deactivateMain() {MainTime.switchOff();}
+            bool getMainActivity() {return MainTime.getActivity();}
+
+            void toggleBuffer() {BufferTime.toggle();}
+            void activateBuffer() {BufferTime.switchOn();}
+            void deactivateBuffer() {BufferTime.switchOff();}
+            bool getBufferActivity() {return BufferTime.getActivity();}
+
+            void toggleWarning() {WarningTime.toggle();}
+            void activateWarning() {WarningTime.switchOn();}
+            void deactivateWarning() {WarningTime.switchOff();}
+            bool getWarningActivity() {return WarningTime.getActivity();}
+
             bool checkMain(Timing::TimePoint comparison = Timing::mtime) {return MainTime.check(comparison);}
             void acknowledgeMain(Timing::TimePoint t = Timing::mtime) {MainTime.acknowledge(t);}
 
@@ -498,12 +513,19 @@ namespace Sleep {
                     Uptime[i].setMainHour(stoi(line.substr(0, 2)));
                     Uptime[i].setMainMinute(stoi(line.substr(3, 2)));
                     Uptime[i].setMainSecond(stoi(line.substr(6, 2)));
-                    Uptime[i].setBufferHour(stoi(line.substr(9, 2)));
-                    Uptime[i].setBufferMinute(stoi(line.substr(12, 2)));
-                    Uptime[i].setBufferSecond(stoi(line.substr(15, 2)));
-                    Uptime[i].setWarningHour(stoi(line.substr(18, 2)));
-                    Uptime[i].setWarningMinute(stoi(line.substr(21, 2)));
-                    Uptime[i].setWarningSecond(stoi(line.substr(24, 2)));
+                    Uptime[i].setBufferHour(stoi(line.substr(11, 2)));
+                    Uptime[i].setBufferMinute(stoi(line.substr(14, 2)));
+                    Uptime[i].setBufferSecond(stoi(line.substr(17, 2)));
+                    Uptime[i].setWarningHour(stoi(line.substr(22, 2)));
+                    Uptime[i].setWarningMinute(stoi(line.substr(25, 2)));
+                    Uptime[i].setWarningSecond(stoi(line.substr(28, 2)));
+
+                    if (line.substr(9, 1) == "1") {Uptime[i].activateMain();}
+                    else {Uptime[i].deactivateMain();}
+                    if (line.substr(20, 1) == "1") {Uptime[i].activateBuffer();}
+                    else {Uptime[i].deactivateBuffer();}
+                    if (line.substr(31, 1) == "1") {Uptime[i].activateWarning();}
+                    else {Uptime[i].deactivateWarning();}
                 }
                 for (unsigned char i = 0; i < 7; i++) {
                     std::getline(file, line);
@@ -512,12 +534,19 @@ namespace Sleep {
                     Downtime[i].setMainHour(stoi(line.substr(0, 2)));
                     Downtime[i].setMainMinute(stoi(line.substr(3, 2)));
                     Downtime[i].setMainSecond(stoi(line.substr(6, 2)));
-                    Downtime[i].setBufferHour(stoi(line.substr(9, 2)));
-                    Downtime[i].setBufferMinute(stoi(line.substr(12, 2)));
-                    Downtime[i].setBufferSecond(stoi(line.substr(15, 2)));
-                    Downtime[i].setWarningHour(stoi(line.substr(18, 2)));
-                    Downtime[i].setWarningMinute(stoi(line.substr(21, 2)));
-                    Downtime[i].setWarningSecond(stoi(line.substr(24, 2)));
+                    Downtime[i].setBufferHour(stoi(line.substr(11, 2)));
+                    Downtime[i].setBufferMinute(stoi(line.substr(14, 2)));
+                    Downtime[i].setBufferSecond(stoi(line.substr(17, 2)));
+                    Downtime[i].setWarningHour(stoi(line.substr(22, 2)));
+                    Downtime[i].setWarningMinute(stoi(line.substr(25, 2)));
+                    Downtime[i].setWarningSecond(stoi(line.substr(28, 2)));
+
+                    if (line.substr(9, 1) == "1") {Downtime[i].activateMain();}
+                    else {Downtime[i].deactivateMain();}
+                    if (line.substr(20, 1) == "1") {Downtime[i].activateBuffer();}
+                    else {Downtime[i].deactivateBuffer();}
+                    if (line.substr(31, 1) == "1") {Downtime[i].activateWarning();}
+                    else {Downtime[i].deactivateWarning();}
                 }
                 
                 return true;
@@ -529,8 +558,8 @@ namespace Sleep {
 
                 if (!file.is_open()) {return false;}
 
-                for (unsigned char i = 0; i < 7; i++) {file << Uptime[i].getMainTime() + "|" + Uptime[i].getBufferTime() + "|" + Uptime[i].getWarningTime() + "\n";}
-                for (unsigned char i = 0; i < 7; i++) {file << Downtime[i].getMainTime() + "|" + Downtime[i].getBufferTime() + "|" + Downtime[i].getWarningTime() + "\n";}
+                for (unsigned char i = 0; i < 7; i++) {file << Uptime[i].getMainTime() + ";" + (Uptime[i].getMainActivity() ? "1" : "0") + "|" + Uptime[i].getBufferTime() + ";" + (Uptime[i].getBufferActivity() ? "1" : "0") + "|" + Uptime[i].getWarningTime() + ";" + (Uptime[i].getWarningActivity() ? "1" : "0") + "\n";}
+                for (unsigned char i = 0; i < 7; i++) {file << Downtime[i].getMainTime() + ";" + (Downtime[i].getMainActivity() ? "1" : "0") + "|" + Downtime[i].getBufferTime() + ";" + (Downtime[i].getBufferActivity() ? "1" : "0") + "|" + Downtime[i].getWarningTime() + ";" + (Downtime[i].getWarningActivity() ? "1" : "0") + "\n";}
 
                 return true;
             }
