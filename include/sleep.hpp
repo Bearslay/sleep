@@ -566,7 +566,7 @@ namespace Sleep {
 
         public:
             Pi() {
-                Win = npp::Window(LINES / 2 - 45 / 2, COLS / 2 - 60, 45, 120);
+                Win = npp::Window(LINES / 2 - 12, COLS / 2 - 35, 25, 71);
 
                 if (!readData()) {
                     // Some kind of popup about not being able to retrieve data
@@ -576,9 +576,9 @@ namespace Sleep {
             }
 
             int main() {
-                npp::Button exit = npp::Button(Win.gposy() + 4, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
-                npp::Button charge = npp::Button(Win.gposy() + 12, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
-                npp::Button settings = npp::Button(Win.gposy() + 20, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
+                npp::Button exit = npp::Button(Win.gposy() + 1, Win.gposx() + 62, 5, 7, {M1_CLICK});
+                npp::Button charge = npp::Button(Win.gposy() + 6, Win.gposx() + 62, 5, 7, {M1_CLICK});
+                npp::Button settings = npp::Button(Win.gposy() + 11, Win.gposx() + 62, 5, 7, {M1_CLICK});
                 
                 Win.dbox();
 
