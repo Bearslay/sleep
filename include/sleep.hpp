@@ -20,6 +20,18 @@ namespace Sleep {
         }
         return str;
     }
+    std::string tupper(std::string input) {
+        for (unsigned int i = 0; i < input.length(); i++) {
+            input[i] = toupper(input[i]);
+        }
+        return input;
+    }
+    std::string tlower(std::string input) {
+        for (unsigned int i = 0; i < input.length(); i++) {
+            input[i] = tolower(input[i]);
+        }
+        return input;
+    }
 
     class TransitionPoint {
         private:
@@ -91,6 +103,10 @@ namespace Sleep {
             const std::string getWarningMinuteStr() {return WarningTime.getMinuteStr();}
             const char getWarningSecondNum() {return WarningTime.getSecondNum();}
             const std::string getWarningSecondStr() {return WarningTime.getSecondStr();}
+
+            const std::string mainHourSuffix() {return MainTime.hourSuffix();}
+            const std::string bufferHourSuffix() {return BufferTime.hourSuffix();}
+            const std::string warningHourSuffix() {return WarningTime.hourSuffix();}
     };
 
     class Pi {
@@ -105,56 +121,60 @@ namespace Sleep {
 
             void rMainMenu() {
                 // Time
-                Win.wmstr(2, 40 - (!Use24Hr ? 8 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_8x8);
-                Win.wmstr(7, 22, Timing::mtime.getDateFormatted(false, true));
+                Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
+                Win.wstr(5, 26, strtowstr(Timing::mtime.getDateFormatted(false, true)), NPP_WHITE, "bo");
 
                 // Exit
-                Win.dbox(4, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
-                Win.wmstr(6, Win.gdimx() - 11, "X", MTEXT_6x6, NPP_RED);
+                Win.dbox(1, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
+                Win.wmstr(2, 64, "X", MTEXT_6x6, NPP_RED);
 
                 // Toggle Charging
-                Win.dbox(12, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, IsCharging ? NPP_LIME : NPP_YELLOW);
-                Win.wmstr(14, Win.gdimx() - 11, "C", MTEXT_6x6, IsCharging ? NPP_LIME : NPP_YELLOW);
+                Win.dbox(6, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, IsCharging ? NPP_LIME : NPP_YELLOW);
+                Win.wmstr(7, 64, "C", MTEXT_6x6, IsCharging ? NPP_LIME : NPP_YELLOW);
 
                 // Enter Settings
-                Win.dbox(20, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_LIGHT_GRAY);
-                Win.wmstr(22, Win.gdimx() - 11, "S", MTEXT_6x6, NPP_LIGHT_GRAY);
+                Win.dbox(11, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_LIGHT_GRAY);
+                Win.wmstr(12, 64, "S", MTEXT_6x6, NPP_LIGHT_GRAY);
 
                 // Downtime/Uptime
-                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(Win.gdimy() - 4, 3, L"Downtime ("), strtowstr(Timing::mtime.getWeekdayStr())), L"): "), strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime()));
-                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(Win.gdimy() - 3, 3, L"Uptime   ("), strtowstr(Timing::mtime.getWeekdayStr())), L"): "), strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime()));
+                Win.dbox(21, 2, 3, 67, {LIGHT_HARD, DASHED_NONE});
+                Win.dvline(21, 36, 3, false, {LIGHT_HARD, DASHED_TRIPLE});
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 3, L"Main Downtime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)), NPP_WHITE, "bo");
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 37, L"Main Uptime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)), NPP_WHITE, "bo");
             }
 
             void rSettingsMain() {
                 // Time
-                Win.wmstr(2, 42 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
+                Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
 
                 // Back
-                Win.dbox(4, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
-                Win.wmstr(6, Win.gdimx() - 11, "X", MTEXT_6x6, NPP_RED);
+                Win.dbox(1, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
+                Win.wmstr(2, 64, "X", MTEXT_6x6, NPP_RED);
 
                 // Toggle Time Format
-                Win.dbox(12, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, Use24Hr ? NPP_CYAN : NPP_TEAL);
-                Win.wmstr(14, Win.gdimx() - 11, "T", MTEXT_6x6, Use24Hr ? NPP_CYAN : NPP_TEAL);
+                Win.dbox(6, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, Use24Hr ? NPP_CYAN : NPP_TEAL);
+                Win.wmstr(7, 64, "T", MTEXT_6x6, Use24Hr ? NPP_CYAN : NPP_TEAL);
 
                 // Change Uptime
-                Win.dbox(12, 40, 5, 19);
-                Win.wstr(13, 43, L"Change Uptime");
-                Win.wstr(Win.wstrp(Win.wstrp(15, 43, strtowstr(Timing::mtime.getWeekdayStr(false))), L": "), strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(true)));
+                Win.dbox(6, 27, 5, 19);
+                Win.wstr(7, 31, L"Edit Uptime");
+                Win.wstr(8, 30, L"-------------");
+                Win.wstr(Win.wstrp(Win.wstrp(9, 30 - (Use24Hr ? 0 : 2), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), Use24Hr ? L": " : L" = "), strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)), NPP_WHITE, "bo");
 
                 // Change Downtime
-                Win.dbox(12, 61, 5, 19);
-                Win.wstr(13, 63, L"Change Downtime");
-                Win.wstr(Win.wstrp(Win.wstrp(15, 64, strtowstr(Timing::mtime.getWeekdayStr(false))), L": "), strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(true)));
+                Win.dbox(11, 27, 5, 19);
+                Win.wstr(12, 30, L"Edit Downtime");
+                Win.wstr(13, 30, L"-------------");
+                Win.wstr(Win.wstrp(Win.wstrp(14, 30 - (Use24Hr ? 0 : 2), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), Use24Hr ? L": " : L" = "), strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)), NPP_WHITE, "bo");
             }
 
             /// @brief Go into the settings menu
             /// @returns True to stay in the program, false to quit the program
             void settingsMenu() {
-                npp::Button back = npp::Button(Win.gposy() + 4, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
-                npp::Button timeFormat = npp::Button(Win.gposy() + 12, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
-                npp::Button changeUptime = npp::Button(Win.gposy() + 12, Win.gposx() + 40, 5, 19, {M1_CLICK});
-                npp::Button changeDowntime = npp::Button(Win.gposy() + 12, Win.gposx() + 61, 5, 19, {M1_CLICK});
+                npp::Button back = npp::Button(Win.gposy() + 1, Win.gposx() + 62, 5, 7, {M1_CLICK});
+                npp::Button timeFormat = npp::Button(Win.gposy() + 6, Win.gposx() + 62, 5, 7, {M1_CLICK});
+                npp::Button changeUptime = npp::Button(Win.gposy() + 6, Win.gposx() + 27, 5, 19, {M1_CLICK});
+                npp::Button changeDowntime = npp::Button(Win.gposy() + 11, Win.gposx() + 27, 5, 19, {M1_CLICK});
 
                 Win.reset();
                 Win.dbox();
@@ -190,89 +210,94 @@ namespace Sleep {
 
             void rSettingsTransition(bool uptime, unsigned char transState, unsigned char day) {
                 // Time
-                Win.wmstr(2, 42 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
+                Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
+
                 // Back
-                Win.dbox(4, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
-                Win.wmstr(6, Win.gdimx() - 11, "X", MTEXT_6x6, NPP_RED);
+                Win.dbox(1, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
+                Win.wmstr(2, 64, "X", MTEXT_6x6, NPP_RED);
                 // Copy Time
-                Win.dbox(12, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_ORANGE);
-                Win.wmstr(14, Win.gdimx() - 11, "C", MTEXT_6x6, NPP_ORANGE);
+                Win.dbox(6, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_ORANGE);
+                Win.wmstr(7, 64, "C", MTEXT_6x6, NPP_ORANGE);
                 // Paste Time
-                Win.dbox(20, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_ORANGE);
-                Win.wmstr(22, Win.gdimx() - 11, "P", MTEXT_6x6, NPP_ORANGE);
+                Win.dbox(11, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_ORANGE);
+                Win.wmstr(12, 64, "P", MTEXT_6x6, NPP_ORANGE);
                 // Sync Days
-                Win.dbox(28, Win.gdimx() - 14, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_YELLOW);
-                Win.wmstr(30, Win.gdimx() - 11, "D", MTEXT_6x6, NPP_YELLOW);
+                Win.dbox(16, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_YELLOW);
+                Win.wmstr(17, 64, "D", MTEXT_6x6, NPP_YELLOW);
 
                 // Change Main Time
-                Win.dbox(4, 4, 7, 9, {LIGHT_SOFT, DASHED_NONE}, transState == TRANS_MAIN ? NPP_CYAN : NPP_TEAL);
-                Win.wmstr(6, 7, "M", MTEXT_6x6, transState == TRANS_MAIN ? NPP_CYAN : NPP_TEAL);
+                Win.dbox(1, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, transState == TRANS_MAIN ? NPP_CYAN : NPP_TEAL);
+                Win.wmstr(2, 4, "M", MTEXT_6x6, transState == TRANS_MAIN ? NPP_CYAN : NPP_TEAL);
                 // Change Buffer Time
-                Win.dbox(12, 4, 7, 9, {LIGHT_SOFT, DASHED_NONE}, transState == TRANS_BUFFER ? NPP_CYAN : NPP_TEAL);
-                Win.wmstr(14, 7, "B", MTEXT_6x6, transState == TRANS_BUFFER ? NPP_CYAN : NPP_TEAL);
+                Win.dbox(6, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, transState == TRANS_BUFFER ? NPP_CYAN : NPP_TEAL);
+                Win.wmstr(7, 4, "B", MTEXT_6x6, transState == TRANS_BUFFER ? NPP_CYAN : NPP_TEAL);
                 // Change Warning Time
-                Win.dbox(20, 4, 7, 9, {LIGHT_SOFT, DASHED_NONE}, transState == TRANS_WARNING ? NPP_CYAN : NPP_TEAL);
-                Win.wmstr(22, 7, "W", MTEXT_6x6, transState == TRANS_WARNING ? NPP_CYAN : NPP_TEAL);
+                Win.dbox(11, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, transState == TRANS_WARNING ? NPP_CYAN : NPP_TEAL);
+                Win.wmstr(12, 4, "W", MTEXT_6x6, transState == TRANS_WARNING ? NPP_CYAN : NPP_TEAL);
                 // Sync Times
-                Win.dbox(28, 4, 7, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_BLUE);
-                Win.wmstr(30, 7, "T", MTEXT_6x6, NPP_BLUE);
+                Win.dbox(16, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_BLUE);
+                Win.wmstr(17, 4, "T", MTEXT_6x6, NPP_BLUE);
 
                 // Weekdays
                 for (unsigned char i = 0; i < 7; i++) {
-                    Win.dbox(36, 4 + i * 16, 7, 15, {LIGHT_SOFT, DASHED_NONE}, i == day ? NPP_LIGHT_GRAY : NPP_DARK_GRAY);
-                    Win.wmstr(38, 6 + i * 16, Timing::Keys.weekdayNamesAbb[i], MTEXT_6x6, i == day ? NPP_LIGHT_GRAY : NPP_DARK_GRAY);
+                    Win.dbox(21, 5 + i * 9, 3, 7, {HEAVY_BOTH, DASHED_NONE}, i == day ? NPP_LIGHT_GRAY : NPP_DARK_GRAY);
+                    Win.wstr(22, 7 + i * 9, strtowstr(tupper(Timing::Keys.weekdayNamesAbb[i])), i == day ? NPP_LIGHT_GRAY : NPP_DARK_GRAY, "bo");
                 }
 
-                // Separation Box
-                Win.dbox(6, 17, 29, 85);
-                // Titles
-                Win.wmstr(8, 22, uptime ? " CHANGE UPTIME " : "CHANGE DOWNTIME", MTEXT_8x8);
-                Win.wmstr(13, 27 + (transState == TRANS_BUFFER ? 3 : 0) + (transState == TRANS_MAIN ? 7 : 0), transState == TRANS_MAIN ? "- Main Time -" : (transState == TRANS_BUFFER ? "- Buffer Time -" : "- Warning Time -"), MTEXT_6x6);
-            
+                // Editing Box
+                Win.dbox(4, 10, 14, 51);
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(5, 21 - transState, L"Editing: ", NPP_WHITE, "bo"), uptime ? L"Uptime (" : L"Downtime (", NPP_WHITE, "bo"), transState == TRANS_MAIN ? L"Main" : (transState == TRANS_BUFFER ? L"Buffer" : L"Warning"), NPP_WHITE, "bo"), L" Time)", NPP_WHITE, "bo");
+                
+                // Information Box
+                Win.dbox(18, 10, 3, 51);
+                Win.dvline(18, 26, 3, false, {LIGHT_HARD, DASHED_TRIPLE});
+                Win.dvline(18, 43, 3, false, {LIGHT_HARD, DASHED_TRIPLE});
+                Win.wstr(Win.wstrp(19, 11, L"M: "), strtowstr(uptime ? Uptime[day].getMainTime(Use24Hr) : Downtime[day].getMainTime(Use24Hr)));
+                Win.wstr(Win.wstrp(19, 28, L"B: "), strtowstr(uptime ? Uptime[day].getBufferTime(Use24Hr) : Downtime[day].getBufferTime(Use24Hr)));
+                Win.wstr(Win.wstrp(19, 45, L"W: "), strtowstr(uptime ? Uptime[day].getWarningTime(Use24Hr) : Downtime[day].getWarningTime(Use24Hr)));
+
                 // Current Transition Time
-                Win.wmstr(23, 40, uptime ? (transState == TRANS_MAIN ? Uptime[day].getMainTime(Use24Hr) : (transState == TRANS_BUFFER ? Uptime[day].getBufferTime(Use24Hr) : Uptime[day].getWarningTime(Use24Hr))) : (transState == TRANS_MAIN ? Downtime[day].getMainTime(Use24Hr) : (transState == TRANS_BUFFER ? Downtime[day].getBufferTime(Use24Hr) : Downtime[day].getWarningTime(Use24Hr))), MTEXT_8x8);
-            
+                Win.wmstr(10, 20, uptime ? (transState == TRANS_MAIN ? Uptime[day].getMainTime(Use24Hr).substr(0, 8) : (transState == TRANS_BUFFER ? Uptime[day].getBufferTime(Use24Hr).substr(0, 8) : Uptime[day].getWarningTime(Use24Hr).substr(0, 8))) : (transState == TRANS_MAIN ? Downtime[day].getMainTime(Use24Hr).substr(0, 8) : (transState == TRANS_BUFFER ? Downtime[day].getBufferTime(Use24Hr).substr(0, 8) : Downtime[day].getWarningTime(Use24Hr).substr(0, 8))), MTEXT_6x6);
+                if (!Use24Hr) {
+                    Win.dbox(10, 53, 3, 6, {HEAVY_BOTH, DASHED_NONE}, NPP_TEAL);
+                    Win.wstr(11, 55, strtowstr(uptime ? (transState == TRANS_MAIN ? Uptime[day].mainHourSuffix() : (transState == TRANS_BUFFER ? Uptime[day].bufferHourSuffix() : Uptime[day].warningHourSuffix())) : (transState == TRANS_MAIN ? Downtime[day].mainHourSuffix() : (transState == TRANS_BUFFER ? Downtime[day].bufferHourSuffix() : Downtime[day].warningHourSuffix()))), NPP_TEAL, "bo");
+                }
+
                 // Add Hour
-                Win.dbox(17, 40, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_LIME);
-                Win.wmstr(18, 43, "^", MTEXT_6x6, NPP_LIME);
+                Win.wmstr(7, 22, "^", MTEXT_6x6, NPP_LIME);
                 // Add Minute
-                Win.dbox(17, 55, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_LIME);
-                Win.wmstr(18, 58, "^", MTEXT_6x6, NPP_LIME);
+                Win.wmstr(7, 34, "^", MTEXT_6x6, NPP_LIME);
                 // Add Second
-                Win.dbox(17, 70, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_LIME);
-                Win.wmstr(18, 73, "^", MTEXT_6x6, NPP_LIME);
+                Win.wmstr(7, 46, "^", MTEXT_6x6, NPP_LIME);
 
                 // Remove Hour
-                Win.dbox(28, 40, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
-                Win.wmstr(29, 43, "v", MTEXT_6x6, NPP_RED);
+                Win.wmstr(13, 22, "v", MTEXT_6x6, NPP_RED);
                 // Remove Minute
-                Win.dbox(28, 55, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
-                Win.wmstr(29, 58, "v", MTEXT_6x6, NPP_RED);
+                Win.wmstr(13, 34, "v", MTEXT_6x6, NPP_RED);
                 // Remove Second
-                Win.dbox(28, 70, 5, 9, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
-                Win.wmstr(29, 73, "v", MTEXT_6x6, NPP_RED);
+                Win.wmstr(13, 46, "v", MTEXT_6x6, NPP_RED);
             }
 
             void settingsTransition(bool uptime) {
-                npp::Button back = npp::Button(Win.gposy() + 4, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
-                npp::Button copyTime = npp::Button(Win.gposy() + 12, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
-                npp::Button pasteTime = npp::Button(Win.gposy() + 20, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
-                npp::Button syncDays = npp::Button(Win.gposy() + 28, Win.gposx() + Win.gdimx() - 14, 7, 9, {M1_CLICK});
+                npp::Button back = npp::Button(Win.gposy() + 1, Win.gposx() + 62, 5, 7, {M1_CLICK});
+                npp::Button copyTime = npp::Button(Win.gposy() + 6, Win.gposx() + 62, 5, 7, {M1_CLICK});
+                npp::Button pasteTime = npp::Button(Win.gposy() + 11, Win.gposx() + 62, 5, 7, {M1_CLICK});
+                npp::Button syncDays = npp::Button(Win.gposy() + 16, Win.gposx() + 62, 5, 7, {M1_CLICK});
                 
-                npp::Button editMain = npp::Button(Win.gposy() + 4, Win.gposx() + 4, 7, 9, {M1_CLICK});
-                npp::Button editBuffer = npp::Button(Win.gposy() + 12, Win.gposx() + 4, 7, 9, {M1_CLICK});
-                npp::Button editWarning = npp::Button(Win.gposy() + 20, Win.gposx() + 4, 7, 9, {M1_CLICK});
-                npp::Button syncTimes = npp::Button(Win.gposy() + 28, Win.gposx() + 4, 7, 9, {M1_CLICK});
+                npp::Button editMain = npp::Button(Win.gposy() + 1, Win.gposx() + 2, 5, 7, {M1_CLICK});
+                npp::Button editBuffer = npp::Button(Win.gposy() + 6, Win.gposx() + 2, 5, 7, {M1_CLICK});
+                npp::Button editWarning = npp::Button(Win.gposy() + 11, Win.gposx() + 2, 5, 7, {M1_CLICK});
+                npp::Button syncTimes = npp::Button(Win.gposy() + 16, Win.gposx() + 2, 5, 7, {M1_CLICK});
                 
-                npp::Button addHour = npp::Button(Win.gposy() + 17, Win.gposx() + 40, 5, 9, {M1_CLICK});
-                npp::Button addMinute = npp::Button(Win.gposy() + 17, Win.gposx() + 55, 5, 9, {M1_CLICK});
-                npp::Button addSecond = npp::Button(Win.gposy() + 17, Win.gposx() + 70, 5, 9, {M1_CLICK});
-                npp::Button removeHour = npp::Button(Win.gposy() + 28, Win.gposx() + 40, 5, 9, {M1_CLICK});
-                npp::Button removeMinute = npp::Button(Win.gposy() + 28, Win.gposx() + 55, 5, 9, {M1_CLICK});
-                npp::Button removeSecond = npp::Button(Win.gposy() + 28, Win.gposx() + 70, 5, 9, {M1_CLICK});
+                npp::Button addHour = npp::Button(Win.gposy() + 6, Win.gposx() + 20, 5, 7, {M1_CLICK});
+                npp::Button addMinute = npp::Button(Win.gposy() + 6, Win.gposx() + 32, 5, 7, {M1_CLICK});
+                npp::Button addSecond = npp::Button(Win.gposy() + 6, Win.gposx() + 44, 5, 7, {M1_CLICK});
+                npp::Button removeHour = npp::Button(Win.gposy() + 12, Win.gposx() + 20, 5, 7, {M1_CLICK});
+                npp::Button removeMinute = npp::Button(Win.gposy() + 12, Win.gposx() + 32, 5, 7, {M1_CLICK});
+                npp::Button removeSecond = npp::Button(Win.gposy() + 12, Win.gposx() + 44, 5, 7, {M1_CLICK});
 
                 npp::Button weekday[7];
-                for (unsigned char i = 0; i < 7; i++) {weekday[i] = npp::Button(Win.gposy() + Win.gdimy() - 10, Win.gposx() + 4 + i * 16, 7, 15, {M1_CLICK});}
+                for (unsigned char i = 0; i < 7; i++) {weekday[i] = npp::Button(Win.gposy() + 21, Win.gposx() + 5 + i * 9, 3, 7, {M1_CLICK});}
 
                 Win.reset();
                 Win.dbox();
