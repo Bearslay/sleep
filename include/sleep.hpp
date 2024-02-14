@@ -9,6 +9,9 @@
 #define TRANS_BUFFER 1
 #define TRANS_WARNING 2
 
+#define POP_WARNING 0
+#define POP_MAIN 1
+
 namespace Sleep {
     /// @brief Convert an std::string to an std::wstring
     /// @param input An std::string input
@@ -120,20 +123,6 @@ namespace Sleep {
             const std::vector<char> untilBuffer_List(Timing::Alarm comparison) {return comparison.timeUntil_List(BufferTime);}
     };
 
-    class mstring : public std::string {
-        private:
-            std::string String;
-        public:
-            mstring(std::string string) {
-                String = string;
-                int l = String.length();
-            }
-
-            std::size_t dlength() {
-                return String.length() * 4;
-            }
-    };
-
     class Pi {
         private:
             npp::Window Win;
@@ -146,35 +135,35 @@ namespace Sleep {
             bool Use24Hr = true;
             unsigned int ChargingVal = 0;
 
-            void rTransitionPopup(bool uptime, char state) {
+            void rTransitionPopup(bool uptime, char popState) {
                 // Time
                 Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
 
                 // Frame
                 Win.reset(4, 10, 17, 51);
                 Win.dbox(4, 10, 17, 51, {HEAVY_BOTH, DASHED_NONE});
-                Win.dhline(9, 10, 51, false, {LIGHT_HARD, DASHED_DOUBLE});
+                Win.dhline(9, 10, 51, false, {LIGHT_HARD, DASHED_TRIPLE});
 
                 // OK Button
                 Win.dbox(14, 28, 6, 15, {LIGHT_SOFT, DASHED_NONE}, NPP_LIME);
                 Win.wmstr(15, 31, "OK", MTEXT_8x8, NPP_LIME);
 
                 // Title
-                Win.wmstr(5, 16, "WARNING!", MTEXT_8x8, NPP_RED);
+                Win.wmstr(5, 13, "!WARNING!", MTEXT_8x8, Now.getSecondNum() % 2 == 0 ? NPP_RED : NPP_ORANGE);
 
                 // Status Message
                 std::vector<char> untilVals;
                 std::string untilStr;
                 if (uptime) {
-                    Win.wstrp(Win.wstrp(10, 24 + (state == 0 ? 4 : 0), L"UPTIME "), state == 0 ? L"IS IN:" : L"BUFFER ENDS IN:");
-                    Win.wstr(12, 31 - (Use24Hr ? 1 : 0), state == 0 ? strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
+                    Win.wstrp(Win.wstrp(10, 24 + (popState == POP_WARNING ? 4 : 0), L"UPTIME "), popState == POP_WARNING ? L"IS IN:" : L"BUFFER ENDS IN:");
+                    Win.wstr(12, 31 - (Use24Hr ? 0 : 1), popState == POP_WARNING ? strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
                     
-                    untilVals = state == 0 ? Uptime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Uptime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
+                    untilVals = popState == POP_WARNING ? Uptime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Uptime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
                 } else {
-                    Win.wstrp(Win.wstrp(10, 23 + (state == 0 ? 4 : 0), L"DOWNTIME "), state == 0 ? L"IS IN:" : L"BUFFER ENDS IN:");
-                    Win.wstr(12, 31 - (Use24Hr ? 1 : 0), state == 0 ? strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
+                    Win.wstrp(Win.wstrp(10, 23 + (popState == POP_WARNING ? 4 : 0), L"DOWNTIME "), popState == POP_WARNING ? L"IS IN:" : L"BUFFER ENDS IN:");
+                    Win.wstr(12, 31 - (Use24Hr ? 0 : 1), popState == POP_WARNING ? strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
                     
-                    untilVals = state == 0 ? Downtime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Downtime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
+                    untilVals = popState == POP_WARNING ? Downtime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Downtime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
                 }
 
                 untilStr = std::to_string(untilVals[0]) + " hours" + ", " + std::to_string(untilVals[1]) + " minutes" + ", " + std::to_string(untilVals[2]) + " seconds";
@@ -186,7 +175,7 @@ namespace Sleep {
 
                 int ch, state;
                 while (true) {
-                    rTransitionPopup(state, 0);
+                    rTransitionPopup();
                     state = update();
 
                     if ((ch = Win.gchar(false)) == KEY_MOUSE) {
@@ -606,7 +595,7 @@ namespace Sleep {
 
                 }
 
-                if (Uptime[Timing::mtime.getWeekdayNum()].checkMain()) {
+                if (Uptime[Timing::mtime.getWeekdayNum()].checkWarning()) {
 
                 }
 

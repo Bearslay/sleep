@@ -1,13 +1,13 @@
-TRANSITION POINT POPUP - WARNING
+TRANSITION POINT POPUP
 ┌─────────────────────────────────────────────────────────────────────┐
 │             hhh hhh ::: mmm mmm ::: sss sss ___ A/P MMM             │
 │                   hhh hhh ::: mmm mmm ::: sss sss                   │
 │                   hhh hhh ::: mmm mmm ::: sss sss                   │
 │         +-------------------------------------------------+         │
-│         |     WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!     |         │
-│         |     WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!     |         │
-│         |     WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!     |         │
-│         |     WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!     |         │
+│         |  !!!! WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!   |         │
+│         |  !!!! WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!   |         │
+│         |  !!!! WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!   |         │
+│         |  !!!! WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!   |         │
 │         +-------------------------------------------------+         │
 │         |                 DOWNTIME IS IN:                 |         │ │         |            DOWNTIME BUFFER ENDS IN:             |         │
 │         |                    5 Minutes                    |         │ │         |        23 Hours, 59 Minutes, 59 Seconds         |         │
