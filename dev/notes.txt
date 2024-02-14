@@ -11,6 +11,7 @@ Todo:
     - Get some amount of data collection
         - How long phone is plugged in each night
         - When phone is plugged in/unplugged
+    - Figure out why some colors aren't accurate on the Pi
 
 Ideas/Features:
     - Alt downtime/uptime editing system

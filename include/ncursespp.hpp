@@ -945,6 +945,21 @@ namespace npp {
 
             /// @brief Clear the window without removing cell data
             void clear() {wclear(Win);}
+            /// @brief Clear a portion of the window without removing cell data
+            /// @param y y-position (row) to start clearing the window at
+            /// @param x x-position (col) to start clearing the window at
+            /// @param dimy Amount of rows to clear
+            /// @param dimx Amount of columns to clear
+            /// @param usePadding Whether to offset coordinates and disallow the editing of certain cells or not
+            void clear(unsigned short y, unsigned short x, unsigned short dimy, unsigned short dimx, bool usePadding = Defaults.UsePadding) {
+                if (!checkCoord(y, x, usePadding) || !checkCoord(y + dimy - 1, x + dimx - 1, usePadding)) {return;}
+
+                for (unsigned short i = y; i < dimy; i++) {
+                    for (unsigned short j = x; j < dimx; j++) {
+                        mvwaddch(Win, i, j, ' ');
+                    }
+                }
+            }
             /// @brief Clear the window and remove cell data
             void reset() {
                 for (unsigned short i = 0; i < DimY; i++) {
@@ -952,7 +967,23 @@ namespace npp {
                         Grid[i][j] = Cell();
                     }
                 }
-                wclear(Win);
+                clear();
+            }
+            /// @brief Clear a portion of the window and remove cell data
+            /// @param y y-position (row) to start reseting the window at
+            /// @param x x-position (col) to start reseting the window at
+            /// @param dimy Amount of rows to reset
+            /// @param dimx Amount of columns to reset
+            /// @param usePadding Whether to offset coordinates and disallow the editing of certain cells or not
+            void reset(unsigned short y, unsigned short x, unsigned short dimy, unsigned short dimx, bool usePadding = Defaults.UsePadding) {
+                if (!checkCoord(y, x, usePadding) || !checkCoord(y + dimy - 1, x + dimx - 1, usePadding)) {return;}
+
+                for (unsigned short i = y; i < dimy; i++) {
+                    for (unsigned short j = x; j < dimx; j++) {
+                        Grid[i][j] = Cell();
+                    }
+                }
+                clear(y, x, dimy, dimx, usePadding);
             }
 
             /// @brief Write Character, Return Position - Write a single character to the window - pair pos, pair return

@@ -291,6 +291,29 @@ namespace Timing {
                 }
             }
 
+            std::vector<char> timeUntil_List(Alarm comparison) {
+                char hours = comparison.getHourNum() - Time.getHourNum();
+                hours += hours < 0 ? 24 : 0;
+
+                char minutes = comparison.getMinuteNum() - Time.getMinuteNum();
+                if (minutes < 0) {
+                    minutes += 60;
+                    hours--;
+                }
+
+                char seconds = comparison.getSecondNum() - Time.getSecondNum();
+                if (seconds < 0) {
+                    seconds += 60;
+                    minutes--;
+                }
+
+                return {hours, minutes, seconds};
+            }
+            unsigned int timeUntil_Seconds(Alarm comparison) {
+                std::vector<char> results = timeUntil_List(comparison);
+                return results[0] * 3600 + results[1] * 60 + results[2];
+            }
+
             /// @brief Determine whether the alarm should be "rining" or not
             /// @param comparison The time point to compare with the alarm's target time
             /// @returns True if the alarm should ring, false if not

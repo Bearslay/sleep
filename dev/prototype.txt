@@ -4,14 +4,14 @@ TRANSITION POINT POPUP - WARNING
 │                   hhh hhh ::: mmm mmm ::: sss sss                   │
 │                   hhh hhh ::: mmm mmm ::: sss sss                   │
 │         +-------------------------------------------------+         │
-│         |   --- ___ WWW AAA RRR NNN III NNN GGG ___ ---   |         │
-│         |   --- ___ WWW AAA RRR NNN III NNN GGG ___ ---   |         │
-│         |   --- ___ WWW AAA RRR NNN III NNN GGG ___ ---   |         │
-│         |                                                 |         │
-│         |                                                 |         │
-│         |                                                 |         │
-│         |                                                 |         │
-│         |                                                 |         │
+│         |     WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!     |         │
+│         |     WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!     |         │
+│         |     WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!     |         │
+│         |     WWWW AAAA RRRR NNNN IIII NNNN GGGG !!!!     |         │
+│         +-------------------------------------------------+         │
+│         |                 DOWNTIME IS IN:                 |         │ │         |            DOWNTIME BUFFER ENDS IN:             |         │
+│         |                    5 Minutes                    |         │ │         |        23 Hours, 59 Minutes, 59 Seconds         |         │
+│         |                    00:00:00                     |         │ │         |                   00:00:00 AM                   |         │
 │         |                                                 |         │
 │         |                 +-------------+                 |         │
 │         |                 |  oooo kkkk  |                 |         │

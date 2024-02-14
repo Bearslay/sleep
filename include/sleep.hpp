@@ -107,17 +107,101 @@ namespace Sleep {
             const std::string mainHourSuffix() {return MainTime.hourSuffix();}
             const std::string bufferHourSuffix() {return BufferTime.hourSuffix();}
             const std::string warningHourSuffix() {return WarningTime.hourSuffix();}
+
+            const std::vector<char> warningUntilMain_List() {return WarningTime.timeUntil_List(MainTime);};
+            const std::vector<char> warningUntilBuffer_List() {return WarningTime.timeUntil_List(BufferTime);};
+            const std::vector<char> mainUntilBuffer_List() {return MainTime.timeUntil_List(BufferTime);};
+            const std::vector<char> mainUntilWarning_List() {return MainTime.timeUntil_List(WarningTime);};
+            const std::vector<char> bufferUntilWarning_List() {return BufferTime.timeUntil_List(WarningTime);};
+            const std::vector<char> bufferUntilMain_List() {return BufferTime.timeUntil_List(MainTime);};
+
+            const std::vector<char> untilWarning_List(Timing::Alarm comparison) {return comparison.timeUntil_List(WarningTime);}
+            const std::vector<char> untilMain_List(Timing::Alarm comparison) {return comparison.timeUntil_List(MainTime);}
+            const std::vector<char> untilBuffer_List(Timing::Alarm comparison) {return comparison.timeUntil_List(BufferTime);}
+    };
+
+    class mstring : public std::string {
+        private:
+            std::string String;
+        public:
+            mstring(std::string string) {
+                String = string;
+                int l = String.length();
+            }
+
+            std::size_t dlength() {
+                return String.length() * 4;
+            }
     };
 
     class Pi {
         private:
             npp::Window Win;
+            Timing::Alarm Now;
         
             TransitionPoint Uptime[7];
             TransitionPoint Downtime[7];
 
             bool IsCharging = false;
             bool Use24Hr = true;
+            unsigned int ChargingVal = 0;
+
+            void rTransitionPopup(bool uptime, char state) {
+                // Time
+                Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
+
+                // Frame
+                Win.reset(4, 10, 17, 51);
+                Win.dbox(4, 10, 17, 51, {HEAVY_BOTH, DASHED_NONE});
+                Win.dhline(9, 10, 51, false, {LIGHT_HARD, DASHED_DOUBLE});
+
+                // OK Button
+                Win.dbox(14, 28, 6, 15, {LIGHT_SOFT, DASHED_NONE}, NPP_LIME);
+                Win.wmstr(15, 31, "OK", MTEXT_8x8, NPP_LIME);
+
+                // Title
+                Win.wmstr(5, 16, "WARNING!", MTEXT_8x8, NPP_RED);
+
+                // Status Message
+                std::vector<char> untilVals;
+                std::string untilStr;
+                if (uptime) {
+                    Win.wstrp(Win.wstrp(10, 24 + (state == 0 ? 4 : 0), L"UPTIME "), state == 0 ? L"IS IN:" : L"BUFFER ENDS IN:");
+                    Win.wstr(12, 31 - (Use24Hr ? 1 : 0), state == 0 ? strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
+                    
+                    untilVals = state == 0 ? Uptime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Uptime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
+                } else {
+                    Win.wstrp(Win.wstrp(10, 23 + (state == 0 ? 4 : 0), L"DOWNTIME "), state == 0 ? L"IS IN:" : L"BUFFER ENDS IN:");
+                    Win.wstr(12, 31 - (Use24Hr ? 1 : 0), state == 0 ? strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
+                    
+                    untilVals = state == 0 ? Downtime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Downtime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
+                }
+
+                untilStr = std::to_string(untilVals[0]) + " hours" + ", " + std::to_string(untilVals[1]) + " minutes" + ", " + std::to_string(untilVals[2]) + " seconds";
+                Win.wstr(11, Win.gdimx() / 2 - untilStr.length() / 2, strtowstr(untilStr));
+            }
+
+            void transitionPopup() {
+                npp::Button ok = npp::Button(Win.gposy() + 14, Win.gposx() + 28, 6, 15, {M1_CLICK});
+
+                int ch, state;
+                while (true) {
+                    rTransitionPopup(state, 0);
+                    state = update();
+
+                    if ((ch = Win.gchar(false)) == KEY_MOUSE) {
+                        if (npp::Mouse.gmouse(ch)) {
+                            if (ok.cclick() == M1_CLICK) {
+                                return;
+                            }
+                        }
+                    } else {
+                        if (ch == 'q') {
+                            return;
+                        }
+                    }
+                }
+            }
 
             void rMainMenu() {
                 // Time
@@ -516,6 +600,11 @@ namespace Sleep {
 
             int update() {
                 Timing::mtime.update(true);
+                Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
+
+                if (IsCharging) {
+
+                }
 
                 if (Uptime[Timing::mtime.getWeekdayNum()].checkMain()) {
 
@@ -592,6 +681,7 @@ namespace Sleep {
         public:
             Pi() {
                 Win = npp::Window(LINES / 2 - 12, COLS / 2 - 35, 25, 71);
+                Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
 
                 if (!readData()) {
                     // Some kind of popup about not being able to retrieve data
@@ -621,6 +711,9 @@ namespace Sleep {
                                 return -1;
                             } else if (charge.cclick() == M1_CLICK) {
                                 IsCharging = !IsCharging;
+                                transitionPopup();
+                                Win.reset();
+                                Win.dbox();
                             } else if (settings.cclick() == M1_CLICK) {
                                 settingsMenu();
                                 Win.reset();
