@@ -1,0 +1,20 @@
+PROGRAM
+Todo:
+    - Add popups for transition points
+        - display time until point (when warning)
+        - display time until buffer ends (when main & buffer enabled)
+        - no popup for buffer
+    - Get Pi to detect plugged in phone
+    - Add interface to enable/disable uptime/downtime
+        - also be able to disable warnings/buffers independently
+        - be able to disable popup for maintime
+    - Get some amount of data collection
+        - How long phone is plugged in each night
+        - When phone is plugged in/unplugged
+
+Ideas/Features:
+    - Alt downtime/uptime editing system
+        - change uptime and automatically set downtime
+        - have universal offset for sleep duration (core)
+        - have univseral offsets for buffers and warnings (bonus)
+    - Have extra alarms

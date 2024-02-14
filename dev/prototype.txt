@@ -1,12 +1,12 @@
-TRANSITION POINT POPUP
+TRANSITION POINT POPUP - WARNING
 ┌─────────────────────────────────────────────────────────────────────┐
 │             hhh hhh ::: mmm mmm ::: sss sss ___ A/P MMM             │
 │                   hhh hhh ::: mmm mmm ::: sss sss                   │
 │                   hhh hhh ::: mmm mmm ::: sss sss                   │
 │         +-------------------------------------------------+         │
-│         | --- ___ ddd ooo www nnn ttt iii mmm eee ___ --- |         │
-│         | --- ___ ddd ooo www nnn ttt iii mmm eee ___ --- |         │
-│         |     --- ___ uuu ppp ttt iii mmm eee ___ ---     |         │
+│         |   --- ___ WWW AAA RRR NNN III NNN GGG ___ ---   |         │
+│         |   --- ___ WWW AAA RRR NNN III NNN GGG ___ ---   |         │
+│         |   --- ___ WWW AAA RRR NNN III NNN GGG ___ ---   |         │
 │         |                                                 |         │
 │         |                                                 |         │
 │         |                                                 |         │
