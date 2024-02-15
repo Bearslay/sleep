@@ -135,6 +135,13 @@ namespace Sleep {
             bool Use24Hr = true;
             unsigned int ChargingVal = 0;
 
+            struct {
+                bool upWarning = false;
+                bool upMain = false;
+                bool downWarning = true;
+                bool downMain = true;
+            } Popups;
+
             void rTransitionPopup(bool uptime, char popState) {
                 // Time
                 Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
@@ -170,22 +177,24 @@ namespace Sleep {
                 Win.wstr(11, Win.gdimx() / 2 - untilStr.length() / 2, strtowstr(untilStr));
             }
 
-            void transitionPopup() {
+            void transitionPopup(bool uptime, char popState) {
                 npp::Button ok = npp::Button(Win.gposy() + 14, Win.gposx() + 28, 6, 15, {M1_CLICK});
 
                 int ch, state;
                 while (true) {
-                    rTransitionPopup();
+                    rTransitionPopup(uptime, popState);
                     state = update();
 
                     if ((ch = Win.gchar(false)) == KEY_MOUSE) {
                         if (npp::Mouse.gmouse(ch)) {
                             if (ok.cclick() == M1_CLICK) {
+                                Win.reset(4, 10, 17, 51);
                                 return;
                             }
                         }
                     } else {
                         if (ch == 'q') {
+                            Win.reset(4, 10, 17, 51);
                             return;
                         }
                     }
@@ -214,6 +223,12 @@ namespace Sleep {
                 Win.dvline(21, 36, 3, false, {LIGHT_HARD, DASHED_TRIPLE});
                 Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 3, L"Main Downtime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)), NPP_WHITE, "bo");
                 Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 37, L"Main Uptime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)), NPP_WHITE, "bo");
+            
+                // Popup Debugging
+                for (unsigned char i = 0; i < 4; i++) {
+                    Win.dbox(1 + i * 5, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, i % 2 == 0 ? NPP_ORANGE : NPP_YELLOW);
+                    Win.wmstr(2 + i * 5, 4, i % 2 == 0 ? "W" : "M", MTEXT_6x6, i % 2 == 0 ? NPP_ORANGE : NPP_YELLOW);
+                }
             }
 
             void rSettingsMain() {
@@ -226,7 +241,11 @@ namespace Sleep {
 
                 // Toggle Time Format
                 Win.dbox(6, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, Use24Hr ? NPP_CYAN : NPP_TEAL);
-                Win.wmstr(7, 64, "T", MTEXT_6x6, Use24Hr ? NPP_CYAN : NPP_TEAL);
+                Win.wmstr(7, 64, "F", MTEXT_6x6, Use24Hr ? NPP_CYAN : NPP_TEAL);
+
+                // Toggle Popups
+                Win.dbox(11, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_ORANGE);
+                Win.wmstr(12, 64, "P", MTEXT_6x6, NPP_ORANGE);
 
                 // Change Uptime
                 Win.dbox(6, 27, 5, 19);
@@ -246,6 +265,8 @@ namespace Sleep {
             void settingsMenu() {
                 npp::Button back = npp::Button(Win.gposy() + 1, Win.gposx() + 62, 5, 7, {M1_CLICK});
                 npp::Button timeFormat = npp::Button(Win.gposy() + 6, Win.gposx() + 62, 5, 7, {M1_CLICK});
+                npp::Button popupToggle = npp::Button(Win.gposy() + 11, Win.gposx() + 62, 5, 7, {M1_CLICK});
+
                 npp::Button changeUptime = npp::Button(Win.gposy() + 6, Win.gposx() + 27, 5, 19, {M1_CLICK});
                 npp::Button changeDowntime = npp::Button(Win.gposy() + 11, Win.gposx() + 27, 5, 19, {M1_CLICK});
 
@@ -256,6 +277,7 @@ namespace Sleep {
                 while (true) {
                     rSettingsMain();
                     state = update();
+                    popups();
 
                     if ((ch = Win.gchar(false)) == KEY_MOUSE) {
                         if (npp::Mouse.gmouse(ch)) {
@@ -265,7 +287,12 @@ namespace Sleep {
                                 Win.reset();
                                 Win.dbox();
                                 Use24Hr = !Use24Hr;
-                            } else if (changeUptime.cclick() == M1_CLICK) {
+                            } else if (popupToggle.cclick() == M1_CLICK) {
+                                settingsPopupToggle();
+                                Win.reset();
+                                Win.dbox();
+                            }
+                            else if (changeUptime.cclick() == M1_CLICK) {
                                 settingsTransition(true);
                                 Win.reset();
                                 Win.dbox();
@@ -587,15 +614,89 @@ namespace Sleep {
                 }
             }
 
+            void rSettingsPopupToggle() {
+                // Time
+                Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
+
+                // Back
+                Win.dbox(1, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
+                Win.wmstr(2, 64, "X", MTEXT_6x6, NPP_RED);
+
+                // Titles
+                Win.wmstr(5, 10, "TOGGLE POPUPS", MTEXT_6x6);
+                Win.wmstr(10, 8, "UPTIME", MTEXT_6x6);
+                Win.wmstr(10, 36, "DOWNTIME", MTEXT_6x6);
+
+                // Box
+                Win.dbox(9, 2, 15, 67, {LIGHT_HARD, DASHED_NONE});
+
+                // Buttons
+                Win.dbox(13, 4, 5, 31, {LIGHT_SOFT, DASHED_NONE}, Popups.upWarning ? NPP_LIME : NPP_RED);
+                Win.wmstr(14, 6, "WARNING", MTEXT_6x6, Popups.upWarning ? NPP_LIME : NPP_RED);
+                Win.dbox(18, 4, 5, 31, {LIGHT_SOFT, DASHED_NONE}, Popups.upMain ? NPP_LIME : NPP_RED);
+                Win.wmstr(19, 12, "MAIN", MTEXT_6x6, Popups.upMain ? NPP_LIME : NPP_RED);
+                Win.dbox(13, 36, 5, 31, {LIGHT_SOFT, DASHED_NONE}, Popups.downWarning ? NPP_LIME : NPP_RED);
+                Win.wmstr(14, 38, "WARNING", MTEXT_6x6, Popups.downWarning ? NPP_LIME : NPP_RED);
+                Win.dbox(18, 36, 5, 31, {LIGHT_SOFT, DASHED_NONE}, Popups.downMain ? NPP_LIME : NPP_RED);
+                Win.wmstr(19, 44, "MAIN", MTEXT_6x6, Popups.downMain ? NPP_LIME : NPP_RED);
+            }
+
+            void settingsPopupToggle() {
+                npp::Button back = npp::Button(Win.gposy() + 1, Win.gposx() + 62, 5, 7, {M1_CLICK});
+                npp::Button upWarning = npp::Button(Win.gposy() + 13, Win.gposx() + 4, 5, 31, {M1_CLICK});
+                npp::Button upMain = npp::Button(Win.gposy() + 18, Win.gposx() + 4, 5, 31, {M1_CLICK});
+                npp::Button downWarning = npp::Button(Win.gposy() + 13, Win.gposx() + 36, 5, 31, {M1_CLICK});
+                npp::Button downMain = npp::Button(Win.gposy() + 18, Win.gposx() + 36, 5, 31, {M1_CLICK});
+
+                Win.reset();
+                Win.dbox();
+
+                int ch, state;
+                while (true) {
+                    rSettingsPopupToggle();
+                    state = update();
+                    popups();
+
+                    if ((ch = Win.gchar(false)) == KEY_MOUSE) {
+                        if (npp::Mouse.gmouse(ch)) {
+                            if (back.cclick() == M1_CLICK) {
+                                return;
+                            } else if (upWarning.cclick() == M1_CLICK) {
+                                Popups.upWarning = !Popups.upWarning;
+                            } else if (upMain.cclick() == M1_CLICK) {
+                                Popups.upMain = !Popups.upMain;
+                            } else if (downWarning.cclick() == M1_CLICK) {
+                                Popups.downWarning = !Popups.downWarning;
+                            } else if (downMain.cclick() == M1_CLICK) {
+                                Popups.downMain = !Popups.downMain;
+                            }
+                        }
+                    } else {
+                        if (ch == 'q') {
+                            return;
+                        }
+                    }
+                }
+            }
+
+            void popups() {
+                unsigned char day = Timing::mtime.getWeekdayNum();
+                if (Popups.upWarning && Uptime[day].checkWarning()) {
+                    transitionPopup(true, POP_WARNING);
+                } else if (Popups.upMain && Uptime[day].checkMain()) {
+                    transitionPopup(true, POP_MAIN);
+                } else if (Popups.downWarning && Downtime[day].checkWarning()) {
+                    transitionPopup(false, POP_WARNING);
+                } else if (Popups.downMain && Downtime[day].checkMain()) {
+                    transitionPopup(false, POP_MAIN);
+                }
+            }
+
             int update() {
                 Timing::mtime.update(true);
                 Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
 
                 if (IsCharging) {
-
-                }
-
-                if (Uptime[Timing::mtime.getWeekdayNum()].checkWarning()) {
 
                 }
 
@@ -684,6 +785,11 @@ namespace Sleep {
                 npp::Button charge = npp::Button(Win.gposy() + 6, Win.gposx() + 62, 5, 7, {M1_CLICK});
                 npp::Button settings = npp::Button(Win.gposy() + 11, Win.gposx() + 62, 5, 7, {M1_CLICK});
                 
+                npp::Button popupDebugging[4];
+                for (unsigned char i = 0; i < 4; i++) {
+                    popupDebugging[i] = npp::Button(Win.gposy() + 1 + i * 5, Win.gposx() + 2, 5, 7, {M1_CLICK});
+                }
+                
                 Win.dbox();
 
                 int ch, state;
@@ -700,13 +806,19 @@ namespace Sleep {
                                 return -1;
                             } else if (charge.cclick() == M1_CLICK) {
                                 IsCharging = !IsCharging;
-                                transitionPopup();
-                                Win.reset();
-                                Win.dbox();
                             } else if (settings.cclick() == M1_CLICK) {
                                 settingsMenu();
                                 Win.reset();
                                 Win.dbox();
+                            }
+                            else if (Popups.upWarning && popupDebugging[0].cclick() == M1_CLICK) {
+                                transitionPopup(true, POP_WARNING);
+                            } else if (Popups.upMain && popupDebugging[1].cclick() == M1_CLICK) {
+                                transitionPopup(true, POP_MAIN);
+                            } else if (Popups.downWarning && popupDebugging[2].cclick() == M1_CLICK) {
+                                transitionPopup(false, POP_WARNING);
+                            } else if (Popups.downMain && popupDebugging[3].cclick() == M1_CLICK) {
+                                transitionPopup(false, POP_MAIN);
                             }
                         }
                     } else {

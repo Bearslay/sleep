@@ -954,9 +954,9 @@ namespace npp {
             void clear(unsigned short y, unsigned short x, unsigned short dimy, unsigned short dimx, bool usePadding = Defaults.UsePadding) {
                 if (!checkCoord(y, x, usePadding) || !checkCoord(y + dimy - 1, x + dimx - 1, usePadding)) {return;}
 
-                for (unsigned short i = y; i < dimy; i++) {
-                    for (unsigned short j = x; j < dimx; j++) {
-                        mvwaddch(Win, i, j, ' ');
+                for (unsigned short i = 0; i < dimy; i++) {
+                    for (unsigned short j = 0; j < dimx; j++) {
+                        mvwaddch(Win, y + i, x + j, ' ');
                     }
                 }
             }
@@ -978,9 +978,9 @@ namespace npp {
             void reset(unsigned short y, unsigned short x, unsigned short dimy, unsigned short dimx, bool usePadding = Defaults.UsePadding) {
                 if (!checkCoord(y, x, usePadding) || !checkCoord(y + dimy - 1, x + dimx - 1, usePadding)) {return;}
 
-                for (unsigned short i = y; i < dimy; i++) {
-                    for (unsigned short j = x; j < dimx; j++) {
-                        Grid[i][j] = Cell();
+                for (unsigned short i = 0; i < dimy; i++) {
+                    for (unsigned short j = 0; j < dimx; j++) {
+                        Grid[y + i][x + j] = Cell();
                     }
                 }
                 clear(y, x, dimy, dimx, usePadding);

@@ -26,26 +26,26 @@ TRANSITION POINT POPUP
 └─────────────────────────────────────────────────────────────────────┘
 MAIN MENU
 ┌─────────────────────────────────────────────────────────────────────┐
-│             hhh hhh ::: mmm mmm ::: sss sss ___ A/P MMM     +-----+ │
-│                   hhh hhh ::: mmm mmm ::: sss sss           | XXX | │
-│                   hhh hhh ::: mmm mmm ::: sss sss           | XXX | │
-│                                                             | XXX | │
-│                         WWW, MMM dddd, year                 +-----+ │
-│                                                             +-----+ │
-│                                                             | CCC | │
-│                                                             | CCC | │
-│                                                             | CCC | │
-│                                                             +-----+ │
-│                                                             +-----+ │
-│                                                             | SSS | │
-│                                                             | SSS | │
-│                                                             | SSS | │
-│                                                             +-----+ │
-│                                                             +-----+ │
-│                                                             |     | │
-│                                                             |     | │
-│                                                             |     | │
-│                                                             +-----+ │
+│ +-----+     hhh hhh ::: mmm mmm ::: sss sss ___ A/P MMM     +-----+ │
+│ | WWW |           hhh hhh ::: mmm mmm ::: sss sss           | XXX | │
+│ | WWW |           hhh hhh ::: mmm mmm ::: sss sss           | XXX | │
+│ | WWW |                                                     | XXX | │
+│ +-----+                 WWW, MMM dddd, year                 +-----+ │
+│ +-----+                                                     +-----+ │
+│ | MMM |                                                     | CCC | │
+│ | MMM |                                                     | CCC | │
+│ | MMM |                                                     | CCC | │
+│ +-----+                                                     +-----+ │
+│ +-----+                                                     +-----+ │
+│ | WWW |                                                     | SSS | │
+│ | WWW |                                                     | SSS | │
+│ | WWW |                                                     | SSS | │
+│ +-----+                                                     +-----+ │
+│ +-----+                                                     +-----+ │
+│ | MMM |                                                     |     | │
+│ | MMM |                                                     |     | │
+│ | MMM |                                                     |     | │
+│ +-----+                                                     +-----+ │
 │ +---------------------------------+-------------------------------+ │
 │ |Main Downtime (WWW): 10:00:00 PM |Main Uptime (WWW): 06:00:00 AM | │
 │ +---------------------------------+-------------------------------+ │
@@ -58,15 +58,15 @@ MAIN SETTINGS MENU
 │                                                             | XXX | │
 │                                                             +-----+ │
 │                          +-----------------+                +-----+ │
-│                          |   Edit Uptime   |                | TTT | │
-│                          |  -------------  |                | TTT | │
-│                          |WED = 06:00:00 AM|                | TTT | │
+│                          |   Edit Uptime   |                | FFF | │
+│                          |  -------------  |                | FFF | │
+│                          |WED = 06:00:00 AM|                | FFF | │
 │                          +-----------------+                +-----+ │
-│                          +-----------------+                        │
-│                          |  Edit Downtime  |                        │
-│                          |  -------------  |                        │
-│                          |  WED: 22:00:00  |                        │
-│                          +-----------------+                        │
+│                          +-----------------+                +-----+ │
+│                          |  Edit Downtime  |                | PPP | │
+│                          |  -------------  |                | PPP | │
+│                          |  WED: 22:00:00  |                | PPP | │
+│                          +-----------------+                +-----+ │
 │                                                                     │
 │                                                                     │
 │                                                                     │
@@ -101,4 +101,30 @@ TRANSITION POINTS MENU
 │    +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+    │
 │    | SUN |  | MON |  | TUE |  | WED |  | THU |  | FRI |  | SAT |    │
 │    +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+    │
+└─────────────────────────────────────────────────────────────────────┘
+POPUP TOGGLE MENU
+┌─────────────────────────────────────────────────────────────────────┐
+│             hhh hhh ::: mmm mmm ::: sss sss ___ A/P MMM     +-----+ │
+│                 hhh hhh ::: mmm mmm ::: sss sss             | XXX | │
+│                 hhh hhh ::: mmm mmm ::: sss sss             | XXX | │
+│                                                             | XXX | │
+│         TTT OOO GGG GGG LLL EEE ___ PPP OOO PPP UUU PPP SSS +-----+ │
+│         TTT OOO GGG GGG LLL EEE ___ PPP OOO PPP UUU PPP SSS         │
+│         TTT OOO GGG GGG LLL EEE ___ PPP OOO PPP UUU PPP SSS         │
+│                                                                     │
+│ +-----------------------------------------------------------------+ │
+│ |     UUU PPP TTT III MMM EEE     DDD OOO WWW NNN TTT III MMM EEE | │
+│ |     UUU PPP TTT III MMM EEE     DDD OOO WWW NNN TTT III MMM EEE | │
+│ |     UUU PPP TTT III MMM EEE     DDD OOO WWW NNN TTT III MMM EEE | │
+│ | +-----------------------------+ +-----------------------------+ | │
+│ | | WWW AAA RRR NNN III NNN GGG | | WWW AAA RRR NNN III NNN GGG | | │
+│ | | WWW AAA RRR NNN III NNN GGG | | WWW AAA RRR NNN III NNN GGG | | │
+│ | | WWW AAA RRR NNN III NNN GGG | | WWW AAA RRR NNN III NNN GGG | | │
+│ | +-----------------------------+ +-----------------------------+ | │
+│ | +-----------------------------+ +-----------------------------+ | │
+│ | |       MMM AAA III NNN       | |       MMM AAA III NNN       | | │
+│ | |       MMM AAA III NNN       | |       MMM AAA III NNN       | | │
+│ | |       MMM AAA III NNN       | |       MMM AAA III NNN       | | │
+│ | +-----------------------------+ +-----------------------------+ | │
+│ +-----------------------------------------------------------------+ │
 └─────────────────────────────────────────────────────────────────────┘
