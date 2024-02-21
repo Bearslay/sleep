@@ -9,9 +9,6 @@
 #define TRANS_BUFFER 1
 #define TRANS_WARNING 2
 
-#define POP_WARNING 0
-#define POP_MAIN 1
-
 namespace Sleep {
     /// @brief Convert an std::string to an std::wstring
     /// @param input An std::string input
@@ -142,7 +139,7 @@ namespace Sleep {
                 bool downMain = true;
             } Popups;
 
-            void rTransitionPopup(bool uptime, char popState) {
+            void rTransitionPopup(bool uptime, bool warning) {
                 // Time
                 Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
 
@@ -162,27 +159,27 @@ namespace Sleep {
                 std::vector<char> untilVals;
                 std::string untilStr;
                 if (uptime) {
-                    Win.wstrp(Win.wstrp(10, 24 + (popState == POP_WARNING ? 4 : 0), L"UPTIME "), popState == POP_WARNING ? L"IS IN:" : L"BUFFER ENDS IN:");
-                    Win.wstr(12, 31 - (Use24Hr ? 0 : 1), popState == POP_WARNING ? strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
+                    Win.wstrp(Win.wstrp(10, 24 + (warning ? 4 : 0), L"UPTIME "), warning ? L"IS IN:" : L"BUFFER ENDS IN:");
+                    Win.wstr(12, 31 - (Use24Hr ? 0 : 1), warning ? strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
                     
-                    untilVals = popState == POP_WARNING ? Uptime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Uptime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
+                    untilVals = warning ? Uptime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Uptime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
                 } else {
-                    Win.wstrp(Win.wstrp(10, 23 + (popState == POP_WARNING ? 4 : 0), L"DOWNTIME "), popState == POP_WARNING ? L"IS IN:" : L"BUFFER ENDS IN:");
-                    Win.wstr(12, 31 - (Use24Hr ? 0 : 1), popState == POP_WARNING ? strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
+                    Win.wstrp(Win.wstrp(10, 23 + (warning ? 4 : 0), L"DOWNTIME "), warning ? L"IS IN:" : L"BUFFER ENDS IN:");
+                    Win.wstr(12, 31 - (Use24Hr ? 0 : 1), warning ? strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
                     
-                    untilVals = popState == POP_WARNING ? Downtime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Downtime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
+                    untilVals = warning ? Downtime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Downtime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
                 }
 
                 untilStr = std::to_string(untilVals[0]) + " hours" + ", " + std::to_string(untilVals[1]) + " minutes" + ", " + std::to_string(untilVals[2]) + " seconds";
                 Win.wstr(11, Win.gdimx() / 2 - untilStr.length() / 2, strtowstr(untilStr));
             }
 
-            void transitionPopup(bool uptime, char popState) {
+            void transitionPopup(bool uptime, bool warning) {
                 npp::Button ok = npp::Button(Win.gposy() + 14, Win.gposx() + 28, 6, 15, {M1_CLICK});
 
                 int ch, state;
                 while (true) {
-                    rTransitionPopup(uptime, popState);
+                    rTransitionPopup(uptime, warning);
                     state = update();
 
                     if ((ch = Win.gchar(false)) == KEY_MOUSE) {
@@ -682,13 +679,13 @@ namespace Sleep {
             void popups() {
                 unsigned char day = Timing::mtime.getWeekdayNum();
                 if (Popups.upWarning && Uptime[day].checkWarning()) {
-                    transitionPopup(true, POP_WARNING);
+                    transitionPopup(true, true);
                 } else if (Popups.upMain && Uptime[day].checkMain()) {
-                    transitionPopup(true, POP_MAIN);
+                    transitionPopup(true, false);
                 } else if (Popups.downWarning && Downtime[day].checkWarning()) {
-                    transitionPopup(false, POP_WARNING);
+                    transitionPopup(false, true);
                 } else if (Popups.downMain && Downtime[day].checkMain()) {
-                    transitionPopup(false, POP_MAIN);
+                    transitionPopup(false, false);
                 }
             }
 
@@ -812,13 +809,13 @@ namespace Sleep {
                                 Win.dbox();
                             }
                             else if (Popups.upWarning && popupDebugging[0].cclick() == M1_CLICK) {
-                                transitionPopup(true, POP_WARNING);
+                                transitionPopup(true, true);
                             } else if (Popups.upMain && popupDebugging[1].cclick() == M1_CLICK) {
-                                transitionPopup(true, POP_MAIN);
+                                transitionPopup(true, false);
                             } else if (Popups.downWarning && popupDebugging[2].cclick() == M1_CLICK) {
-                                transitionPopup(false, POP_WARNING);
+                                transitionPopup(false, true);
                             } else if (Popups.downMain && popupDebugging[3].cclick() == M1_CLICK) {
-                                transitionPopup(false, POP_MAIN);
+                                transitionPopup(false, false);
                             }
                         }
                     } else {
