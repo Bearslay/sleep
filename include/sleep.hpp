@@ -133,7 +133,11 @@ namespace Sleep {
 
             bool IsCharging = false;
             bool Use24Hr = true;
-            unsigned int ChargingVal = 0;
+            
+            bool IsUptime = true;
+            unsigned char Day = Timing::mtime.getWeekdayNum();
+
+            unsigned int DayCharge = 0, UptimeCharge = 0, DowntimeCharge = 0;
 
             struct {
                 bool upWarning = false;
@@ -143,23 +147,21 @@ namespace Sleep {
             } Popups;
 
             void popupsAcknowledge(bool acknowledge, bool uptime, bool warning) {
-                unsigned char day = Timing::mtime.getWeekdayNum();
-
                 if (uptime) {
                     if (warning) {
-                        if (acknowledge) {Uptime[day].acknowledgeWarning();}
-                        else {Uptime[day].unacknowledgeWarning();}
+                        if (acknowledge) {Uptime[Day].acknowledgeWarning();}
+                        else {Uptime[Day].unacknowledgeWarning();}
                     } else {
-                        if (acknowledge) {Uptime[day].acknowledgeMain();}
-                        else {Uptime[day].unacknowledgeMain();}
+                        if (acknowledge) {Uptime[Day].acknowledgeMain();}
+                        else {Uptime[Day].unacknowledgeMain();}
                     }
                 } else {
                     if (warning) {
-                        if (acknowledge) {Downtime[day].acknowledgeWarning();}
-                        else {Downtime[day].unacknowledgeWarning();}
+                        if (acknowledge) {Downtime[Day].acknowledgeWarning();}
+                        else {Downtime[Day].unacknowledgeWarning();}
                     } else {
-                        if (acknowledge) {Downtime[day].acknowledgeMain();}
-                        else {Downtime[day].unacknowledgeMain();}
+                        if (acknowledge) {Downtime[Day].acknowledgeMain();}
+                        else {Downtime[Day].unacknowledgeMain();}
                     }
                 }
             }
@@ -243,8 +245,8 @@ namespace Sleep {
                 Win.wmstr(12, 64, "S", MTEXT_6x6, NPP_LIGHT_GRAY);
 
                 // Downtime/Uptime
-                Win.dbox(21, 2, 3, 67, {LIGHT_HARD, DASHED_NONE});
-                Win.dvline(21, 36, 3, false, {LIGHT_HARD, DASHED_TRIPLE});
+                Win.dbox(21, 2, 3, 67, {LIGHT_HARD, DASHED_NONE}, IsUptime ? NPP_MAGENTA : NPP_PURPLE);
+                Win.dvline(21, 36, 3, false, {LIGHT_HARD, DASHED_TRIPLE}, IsUptime ? NPP_MAGENTA : NPP_PURPLE);
                 Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 3, L"Main Downtime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)), NPP_WHITE, "bo");
                 Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 37, L"Main Uptime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)), NPP_WHITE, "bo");
             
@@ -702,17 +704,31 @@ namespace Sleep {
             }
 
             void popups() {
-                unsigned char day = Timing::mtime.getWeekdayNum();
-
-                if (Popups.upWarning && Uptime[day].checkWarning()) {
+                if (Popups.upWarning && Uptime[Day].checkWarning()) {
                     transitionPopup(true, true);
-                } else if (Popups.upMain && Uptime[day].checkMain()) {
+                } else if (Popups.upMain && Uptime[Day].checkMain()) {
                     transitionPopup(true, false);
-                } else if (Popups.downWarning && Downtime[day].checkWarning()) {
+                } else if (Popups.downWarning && Downtime[Day].checkWarning()) {
                     transitionPopup(false, true);
-                } else if (Popups.downMain && Downtime[day].checkMain()) {
+                } else if (Popups.downMain && Downtime[Day].checkMain()) {
                     transitionPopup(false, false);
+                } else if (Uptime[Day].checkBuffer()) {
+                    IsUptime = true;
+                } else if (Downtime[Day].checkBuffer()) {
+                    IsUptime = false;
                 }
+            }
+
+            void uptime() {
+
+            }
+
+            void downtime() {
+
+            }
+
+            void newday() {
+                
             }
 
             int update() {

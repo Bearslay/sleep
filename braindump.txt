@@ -1,0 +1,107 @@
+update {
+    update current time
+    update now alarm (for comparison)
+
+    if charging and uptime {
+        increase uptime tracker()
+    }
+    if charging and downtime {
+        increase downtime tracker()
+    }
+
+    if using uptime warning and uptime warning is triggered and isnt active already {
+        until acknowledged {
+            update()
+            show popup()
+
+            if click on acknowledge {
+                acknowledge
+            }
+        }
+    }
+
+    if uptime main is triggered and isnt active already {
+        until acknowledged {
+            update()
+            show popup()
+
+            if click on acknowledge {
+                acknowledge
+            }
+        }
+
+        if not using uptime buffer {
+            now uptime
+        }
+    }
+
+    if using uptime buffer and uptime buffer is triggered and isnt active already {
+        until acknowledged {
+            update()
+            show popup()
+
+            if click on acknowledge {
+                acknowledge
+            }
+        }
+
+        now uptime
+    }
+
+    if using downtime warning and downtime warning is triggered and isnt active already {
+        until acknowledged {
+            update()
+            show popup()
+
+            if click on acknowledge {
+                acknowledge
+            }
+        }
+    }
+
+    if downtime main is triggered and isnt active already {
+        until acknowledged {
+            update()
+            show popup()
+
+            if click on acknowledge {
+                acknowledge
+            }
+        }
+
+        if not using downtime buffer {
+            now downtime
+        }
+    }
+
+    if using downtime buffer and downtime buffer is triggered and isnt active already {
+        until acknowledged {
+            update()
+            show popup()
+
+            if click on acknowledge {
+                acknowledge
+            }
+        }
+
+        now downtime
+    }
+}
+
+program is running {
+    update()
+    display main screen()
+
+    if click on exit {
+        leave
+    }
+    if click on charging {
+        toggle charging
+    }
+    if click on settings {
+        update()
+        display settings screen()
+
+
+    }
+}
