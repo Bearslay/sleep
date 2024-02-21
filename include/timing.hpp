@@ -332,7 +332,8 @@ namespace Timing {
                 return comparison.getHourNum() >= Time.getHourNum() && comparison.getMinuteNum() >= Time.getMinuteNum() && comparison.getSecondNum() >= Time.getSecondNum() && sameDay ? true : false;
             }
 
-            void acknowledge(TimePoint t = mtime) {Acknowledged = (check(t)) ? true : false;}
+            void acknowledge() {Acknowledged = true;}
+            void unacknowledge() {Acknowledged = false;}
 
             void toggle() {Active = !Active;}
             void switchOn() {Active = true;}

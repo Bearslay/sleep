@@ -60,13 +60,16 @@ namespace Sleep {
             bool getWarningActivity() {return WarningTime.getActivity();}
 
             bool checkMain(Timing::TimePoint comparison = Timing::mtime) {return MainTime.check(comparison);}
-            void acknowledgeMain(Timing::TimePoint t = Timing::mtime) {MainTime.acknowledge(t);}
+            void acknowledgeMain() {MainTime.acknowledge();}
+            void unacknowledgeMain() {MainTime.unacknowledge();}
 
             bool checkBuffer(Timing::TimePoint comparison = Timing::mtime) {return BufferTime.check(comparison);}
-            void acknowledgeBuffer(Timing::TimePoint t = Timing::mtime) {BufferTime.acknowledge(t);}
+            void acknowledgeBuffer() {BufferTime.acknowledge();}
+            void unacknowledgeBuffer() {BufferTime.unacknowledge();}
 
             bool checkWarning(Timing::TimePoint comparison = Timing::mtime) {return WarningTime.check(comparison);}
-            void acknowledgeWarning(Timing::TimePoint t = Timing::mtime) {WarningTime.acknowledge(t);}
+            void acknowledgeWarning() {WarningTime.acknowledge();}
+            void unacknowledgeWarning() {WarningTime.unacknowledge();}
 
             bool setMainHour(unsigned char hour) {return MainTime.setHour(hour);}
             bool setMainMinute(unsigned char minute) {return MainTime.setMinute(minute);}
@@ -139,6 +142,28 @@ namespace Sleep {
                 bool downMain = true;
             } Popups;
 
+            void popupsAcknowledge(bool acknowledge, bool uptime, bool warning) {
+                unsigned char day = Timing::mtime.getWeekdayNum();
+
+                if (uptime) {
+                    if (warning) {
+                        if (acknowledge) {Uptime[day].acknowledgeWarning();}
+                        else {Uptime[day].unacknowledgeWarning();}
+                    } else {
+                        if (acknowledge) {Uptime[day].acknowledgeMain();}
+                        else {Uptime[day].unacknowledgeMain();}
+                    }
+                } else {
+                    if (warning) {
+                        if (acknowledge) {Downtime[day].acknowledgeWarning();}
+                        else {Downtime[day].unacknowledgeWarning();}
+                    } else {
+                        if (acknowledge) {Downtime[day].acknowledgeMain();}
+                        else {Downtime[day].unacknowledgeMain();}
+                    }
+                }
+            }
+
             void rTransitionPopup(bool uptime, bool warning) {
                 // Time
                 Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
@@ -185,12 +210,14 @@ namespace Sleep {
                     if ((ch = Win.gchar(false)) == KEY_MOUSE) {
                         if (npp::Mouse.gmouse(ch)) {
                             if (ok.cclick() == M1_CLICK) {
+                                popupsAcknowledge(true, uptime, warning);
                                 Win.reset(4, 10, 17, 51);
                                 return;
                             }
                         }
                     } else {
                         if (ch == 'q') {
+                            popupsAcknowledge(true, uptime, warning);
                             Win.reset(4, 10, 17, 51);
                             return;
                         }
@@ -257,8 +284,6 @@ namespace Sleep {
                 Win.wstr(Win.wstrp(Win.wstrp(14, 30 - (Use24Hr ? 0 : 2), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), Use24Hr ? L": " : L" = "), strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)), NPP_WHITE, "bo");
             }
 
-            /// @brief Go into the settings menu
-            /// @returns True to stay in the program, false to quit the program
             void settingsMenu() {
                 npp::Button back = npp::Button(Win.gposy() + 1, Win.gposx() + 62, 5, 7, {M1_CLICK});
                 npp::Button timeFormat = npp::Button(Win.gposy() + 6, Win.gposx() + 62, 5, 7, {M1_CLICK});
@@ -678,6 +703,7 @@ namespace Sleep {
 
             void popups() {
                 unsigned char day = Timing::mtime.getWeekdayNum();
+
                 if (Popups.upWarning && Uptime[day].checkWarning()) {
                     transitionPopup(true, true);
                 } else if (Popups.upMain && Uptime[day].checkMain()) {
@@ -702,11 +728,11 @@ namespace Sleep {
 
             bool readData() {
                 std::ifstream file;
-                file.open("data.txt", std::ios::in);
+                std::string line;
 
+                file.open("data.txt", std::ios::in);
                 if (!file.is_open()) {return false;}
 
-                std::string line;
                 for (unsigned char i = 0; i < 7; i++) {
                     std::getline(file, line);
 
@@ -749,19 +775,43 @@ namespace Sleep {
                     if (line.substr(31, 1) == "1") {Downtime[i].activateWarning();}
                     else {Downtime[i].deactivateWarning();}
                 }
-                
+
+                file.close();
+                file.open("settings.txt", std::ios::in);
+                if (!file.is_open()) {return false;}
+
+                getline(file, line);
+                Popups.upWarning = line[0] == '1' ? true : false;
+                Popups.upMain = line[1] == '1' ? true : false;
+                Popups.downWarning = line[2] == '1' ? true : false;
+                Popups.downMain = line[3] == '1' ? true : false;
+
+                getline(file, line);
+                Use24Hr = line[0] == '1' ? true : false;
+
+                file.close();
                 return true;
             }
 
             bool writeData() {
                 std::ofstream file;
                 file.open("data.txt", std::ios::out);
-
                 if (!file.is_open()) {return false;}
 
-                for (unsigned char i = 0; i < 7; i++) {file << Uptime[i].getMainTime() + ";" + (Uptime[i].getMainActivity() ? "1" : "0") + "|" + Uptime[i].getBufferTime() + ";" + (Uptime[i].getBufferActivity() ? "1" : "0") + "|" + Uptime[i].getWarningTime() + ";" + (Uptime[i].getWarningActivity() ? "1" : "0") + "\n";}
-                for (unsigned char i = 0; i < 7; i++) {file << Downtime[i].getMainTime() + ";" + (Downtime[i].getMainActivity() ? "1" : "0") + "|" + Downtime[i].getBufferTime() + ";" + (Downtime[i].getBufferActivity() ? "1" : "0") + "|" + Downtime[i].getWarningTime() + ";" + (Downtime[i].getWarningActivity() ? "1" : "0") + "\n";}
+                for (unsigned char i = 0; i < 7; i++) {
+                    file << Uptime[i].getMainTime() + ";" + (Uptime[i].getMainActivity() ? "1" : "0") + "|" + Uptime[i].getBufferTime() + ";" + (Uptime[i].getBufferActivity() ? "1" : "0") + "|" + Uptime[i].getWarningTime() + ";" + (Uptime[i].getWarningActivity() ? "1" : "0") + "\n";
+                }
+                for (unsigned char i = 0; i < 7; i++) {
+                    file << Downtime[i].getMainTime() + ";" + (Downtime[i].getMainActivity() ? "1" : "0") + "|" + Downtime[i].getBufferTime() + ";" + (Downtime[i].getBufferActivity() ? "1" : "0") + "|" + Downtime[i].getWarningTime() + ";" + (Downtime[i].getWarningActivity() ? "1" : "0") + "\n";
+                }
 
+                file.close();
+                file.open("settings.txt", std::ios::out);
+                if (!file.is_open()) {return false;}
+
+                file << (Popups.upWarning ? '1' : '0') << (Popups.upMain ? '1' : '0') << (Popups.downWarning ? '1' : '0') << (Popups.downMain ? '1' : '0') << "\n" << (Use24Hr ? '1' : '0');
+
+                file.close();
                 return true;
             }
 
