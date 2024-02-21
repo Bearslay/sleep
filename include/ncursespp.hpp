@@ -1513,6 +1513,22 @@ namespace npp {
                 }
                 wrefresh(Win);
             }
+            /// @brief Render Instantly - Render a portion of the window instantly (mainly for performance on weaker computers)
+            /// @param y y-position (row) to start rendering the window at
+            /// @param x x-position (col) to start rendering the window at
+            /// @param dimy Amount of rows to render
+            /// @param dimx Amount of columns to render
+            /// @param usePadding Whether to offset coordinates and disallow the editing of certain cells or not
+            void rinst(unsigned short y, unsigned short x, unsigned short dimy, unsigned short dimx, bool usePadding = Defaults.UsePadding) {
+                if (!checkCoord(y, x, usePadding) || !checkCoord(y + dimy - 1, x + dimx - 1, usePadding)) {return;}
+                
+                for (unsigned short i = 0; i < dimy; i++) {
+                    for (unsigned short j = 0; j < dimx; j++) {
+                        write(y + i, x + j);
+                    }
+                }
+                wrefresh(Win);
+            }
 
             /// @brief Render by Line - Render the window line-by-line (and char-by-char if indicated)
             /// @param dir Direction to start from: 0 = Top-Left, 1 = Bottom-Left, 2 = Left-Top, 3 = Right-Top
