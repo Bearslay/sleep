@@ -127,7 +127,7 @@ namespace Sleep {
         private:
             npp::Window Win;
             Timing::Alarm Now;
-        
+       
             TransitionPoint Uptime[7];
             TransitionPoint Downtime[7];
 
@@ -733,7 +733,7 @@ namespace Sleep {
 
             int update() {
                 Timing::mtime.update(true);
-                Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
+                Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum(), {Timing::mtime.getWeekdayNum()});
 
                 if (IsCharging) {
 
@@ -834,7 +834,7 @@ namespace Sleep {
         public:
             Pi() {
                 Win = npp::Window(LINES / 2 - 12, COLS / 2 - 35, 25, 71);
-                Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
+                Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum(), {Timing::mtime.getWeekdayNum()});
 
                 if (!readData()) {
                     // Some kind of popup about not being able to retrieve data
@@ -863,10 +863,7 @@ namespace Sleep {
                     if ((ch = Win.gchar(false)) == KEY_MOUSE) {
                         if (npp::Mouse.gmouse(ch)) {
                             if (exit.cclick() == M1_CLICK) {
-                                if (!writeData()) {
-                                    // Some kind of pop-up about not saving settings or smth
-                                }
-                                return -1;
+                                break;
                             } else if (charge.cclick() == M1_CLICK) {
                                 IsCharging = !IsCharging;
                             } else if (settings.cclick() == M1_CLICK) {
@@ -886,13 +883,15 @@ namespace Sleep {
                         }
                     } else {
                         if (ch == 'q') {
-                            if (!writeData()) {
-                                // Some kind of pop-up about not saving settings or smth
-                            }
-                            return -1;
+                            break;
                         }
                     }
                 }
+
+                if (!writeData) {
+                    // Error
+                }
+                return -1;
             }
     };
 }

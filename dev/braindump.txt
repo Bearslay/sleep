@@ -2,11 +2,18 @@ update {
     update current time
     update now alarm (for comparison)
 
-    if charging and uptime {
-        increase uptime tracker()
+    if uptime {
+        if charging {
+            increase uptime charging count
+        }
     }
-    if charging and downtime {
-        increase downtime tracker()
+    if downtime {
+        if charging {
+            increase downtime charging count
+        }
+        if not charging {
+            time to make a rukus
+        }
     }
 
     if using uptime warning and uptime warning is triggered and isnt active already {
@@ -88,7 +95,7 @@ update {
     }
 }
 
-program is running {
+until click on exit button {
     update()
     display main screen()
 
@@ -99,9 +106,30 @@ program is running {
         toggle charging
     }
     if click on settings {
-        update()
-        display settings screen()
+        until click on back button {
+            update()
+            display settings screen()
 
+            if click on back {
+                go to main menu
+            }
+            if click on switch format {
+                toggle 12/24 hour clock
+            }
+            if click on popup toggle menu {
+                until click on back button {
+                    update()
+                    display popup toggling menu()
 
+                    if click on back {
+                        go to settings menu
+                    }
+                    if click on any toggle button {
+                        toggle selected popup
+                    }
+                }
+            }
+            
+        }
     }
 }

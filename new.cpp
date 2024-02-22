@@ -1,10 +1,10 @@
-#include "sleep.hpp"
+#include "sleepNew.hpp"
 
 int main() {
     npp::init(true);
 
-    Sleep::Pi pi;
-    pi.main();
+    Sleep::RPi rpi;
+    rpi.main();
 
     return npp::end(true);    
 }

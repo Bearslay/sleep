@@ -96,7 +96,7 @@ namespace Timing {
             unsigned short MinuteNum = 0;
             unsigned short HourNum = 0;
             unsigned short DayNum = 1;
-            unsigned short WeekdayNum = 0;
+            unsigned char WeekdayNum = 0;
             unsigned short MonthNum = 0;
             unsigned long YearNum = 1970;
 
@@ -213,7 +213,7 @@ namespace Timing {
             const unsigned short getDayNum() {return DayNum;}
             const std::string getDayStr(bool addSuffix = DefaultParams.AddSuffix) {return !addSuffix ? DayStr : ((DayStr + (DayStr[1] == '1' && DayNum != 11 ? "st" : (DayStr[1] == '2' && DayNum != 12 ? "nd" : (DayStr[1] == '3' && DayNum != 13 ? "rd" : "th")))));}
 
-            const unsigned short getWeekdayNum() {return WeekdayNum;}
+            const unsigned char getWeekdayNum() {return WeekdayNum;}
             const std::string getWeekdayStr(bool full = DefaultParams.FullName) {return full ? Keys.weekdayNamesFull.at(WeekdayStr) : WeekdayStr;}
 
             const unsigned short getMonthNum() {return MonthNum;}
