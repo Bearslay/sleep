@@ -82,7 +82,7 @@ namespace Sleep {
             struct {
                 npp::Button ok;
 
-                bool warning;
+                bool uptime, warning;
             } Uniques_pCritPts;
 
             void changeScreen(unsigned char screen) {
@@ -351,6 +351,12 @@ namespace Sleep {
                     Popups[0][POP_DOWNWARN] = !Popups[0][POP_DOWNWARN];
                 } else if (Uniques_sPopups.downMain.cclick() == M1_CLICK) {
                     Popups[0][POP_DOWNMAIN] = !Popups[0][POP_DOWNMAIN];
+                }
+            }
+            void hPopups_CritPts() {
+                if (Uniques_pCritPts.ok.cclick() == M1_CLICK) {
+                    CritPts[Uniques_pCritPts.uptime][Weekday][Uniques_pCritPts.warning ? 2 : 0].acknowledge();
+                    Win.reset();
                 }
             }
 
