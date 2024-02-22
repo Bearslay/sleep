@@ -719,18 +719,6 @@ namespace Sleep {
                 }
             }
 
-            void uptime() {
-
-            }
-
-            void downtime() {
-
-            }
-
-            void newday() {
-                
-            }
-
             int update() {
                 Timing::mtime.update(true);
                 Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum(), {Timing::mtime.getWeekdayNum()});

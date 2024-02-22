@@ -21,6 +21,7 @@
 #define SCR_SETTINGS_MAIN 1
 #define SCR_SETTINGS_CRITPTS 2
 #define SCR_SETTINGS_POPUPS 3
+#define SCR_POPUPS_CRITPTS 4
 
 namespace Sleep {
     std::wstring strtowstr(std::string input) {
@@ -53,10 +54,10 @@ namespace Sleep {
 
             unsigned char Weekday = Timing::mtime.getWeekdayNum();
 
-            bool IsCharging = false;
-            bool Use24Hr = true;
+            bool IsCharging;
+            bool Use24Hr;
 
-            bool IsUptime = true;
+            bool IsUptime;
             unsigned char Screen = SCR_HOME;
 
             std::vector<unsigned int> Charges = {0, 0, 0};
@@ -64,18 +65,31 @@ namespace Sleep {
 
             struct {
                 npp::Button changeUptime, changeDowntime;
-            } Settings_Main_Unique;
+            } Uniques_sMain;
 
             struct {
-                
+                std::vector<npp::Button> addTime, removeTime, weekdays;
                 
                 bool uptime = false;
-                unsigned char time = TIME_MAIN;
-            } Settings_CritPts_Unique;
+                unsigned char time = TIME_MAIN, weekday;
+                std::vector<unsigned char> copyTime;
+            } Uniques_sCritPts;
 
             struct {
                 npp::Button upWarning, upMain, downWarning, downMain;
-            } Settings_Popups_Unique;
+            } Uniques_sPopups;
+
+            struct {
+                npp::Button ok;
+
+                bool warning;
+            } Uniques_pCritPts;
+
+            void changeScreen(unsigned char screen) {
+                Screen = screen;
+                Win.reset();
+                Win.dbox();
+            }
 
             void rHome() {
                 // Date
@@ -139,41 +153,41 @@ namespace Sleep {
                 Win.wmstr(17, 64, "D", MTEXT_6x6, NPP_YELLOW);
 
                 // Change Main Time
-                Win.dbox(1, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, Settings_CritPts_Unique.time == TIME_MAIN ? NPP_CYAN : NPP_TEAL);
-                Win.wmstr(2, 4, "M", MTEXT_6x6, Settings_CritPts_Unique.time == TIME_MAIN ? NPP_CYAN : NPP_TEAL);
+                Win.dbox(1, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, Uniques_sCritPts.time == TIME_MAIN ? NPP_CYAN : NPP_TEAL);
+                Win.wmstr(2, 4, "M", MTEXT_6x6, Uniques_sCritPts.time == TIME_MAIN ? NPP_CYAN : NPP_TEAL);
                 // Change Buffer Time
-                Win.dbox(6, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, Settings_CritPts_Unique.time == TIME_BUFFER ? NPP_CYAN : NPP_TEAL);
-                Win.wmstr(7, 4, "B", MTEXT_6x6, Settings_CritPts_Unique.time == TIME_BUFFER ? NPP_CYAN : NPP_TEAL);
+                Win.dbox(6, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, Uniques_sCritPts.time == TIME_BUFFER ? NPP_CYAN : NPP_TEAL);
+                Win.wmstr(7, 4, "B", MTEXT_6x6, Uniques_sCritPts.time == TIME_BUFFER ? NPP_CYAN : NPP_TEAL);
                 // Change Warning Time
-                Win.dbox(11, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, Settings_CritPts_Unique.time == TIME_WARNING ? NPP_CYAN : NPP_TEAL);
-                Win.wmstr(12, 4, "W", MTEXT_6x6, Settings_CritPts_Unique.time == TIME_WARNING ? NPP_CYAN : NPP_TEAL);
+                Win.dbox(11, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, Uniques_sCritPts.time == TIME_WARNING ? NPP_CYAN : NPP_TEAL);
+                Win.wmstr(12, 4, "W", MTEXT_6x6, Uniques_sCritPts.time == TIME_WARNING ? NPP_CYAN : NPP_TEAL);
                 // Sync Times
                 Win.dbox(16, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_BLUE);
                 Win.wmstr(17, 4, "T", MTEXT_6x6, NPP_BLUE);
 
                 // Weekdays
                 for (unsigned char i = 0; i < 7; i++) {
-                    Win.dbox(21, 5 + i * 9, 3, 7, {HEAVY_BOTH, DASHED_NONE}, i == Weekday ? NPP_LIGHT_GRAY : NPP_DARK_GRAY);
-                    Win.wstr(22, 7 + i * 9, strtowstr(tupper(Timing::Keys.weekdayNamesAbb[i])), i == Weekday ? NPP_LIGHT_GRAY : NPP_DARK_GRAY, "bo");
+                    Win.dbox(21, 5 + i * 9, 3, 7, {HEAVY_BOTH, DASHED_NONE}, i == Uniques_sCritPts.weekday ? NPP_LIGHT_GRAY : NPP_DARK_GRAY);
+                    Win.wstr(22, 7 + i * 9, strtowstr(tupper(Timing::Keys.weekdayNamesAbb[i])), i == Uniques_sCritPts.weekday ? NPP_LIGHT_GRAY : NPP_DARK_GRAY, "bo");
                 }
 
                 // Editing Box
                 Win.dbox(4, 10, 14, 51);
-                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(5, 21 - Settings_CritPts_Unique.time, L"Editing: ", NPP_WHITE, "bo"), Settings_CritPts_Unique.uptime ? L"Uptime (" : L"Downtime (", NPP_WHITE, "bo"), Settings_CritPts_Unique.time == TIME_MAIN ? L"Main" : (Settings_CritPts_Unique.time == TIME_BUFFER ? L"Buffer" : L"Warning"), NPP_WHITE, "bo"), L" Time)", NPP_WHITE, "bo");
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(5, 21 - Uniques_sCritPts.time, L"Editing: ", NPP_WHITE, "bo"), Uniques_sCritPts.uptime ? L"Uptime (" : L"Downtime (", NPP_WHITE, "bo"), Uniques_sCritPts.time == TIME_MAIN ? L"Main" : (Uniques_sCritPts.time == TIME_BUFFER ? L"Buffer" : L"Warning"), NPP_WHITE, "bo"), L" Time)", NPP_WHITE, "bo");
                 
                 // Information Box
                 Win.dbox(18, 10, 3, 51);
                 Win.dvline(18, 26, 3, false, {LIGHT_HARD, DASHED_TRIPLE});
                 Win.dvline(18, 43, 3, false, {LIGHT_HARD, DASHED_TRIPLE});
-                Win.wstr(Win.wstrp(19, 11, L"M: "), strtowstr(CritPts[Settings_CritPts_Unique.uptime][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)));
-                Win.wstr(Win.wstrp(19, 28, L"B: "), strtowstr(CritPts[Settings_CritPts_Unique.uptime][Weekday][TIME_BUFFER].getTimeFormatted(Use24Hr)));
-                Win.wstr(Win.wstrp(19, 45, L"W: "), strtowstr(CritPts[Settings_CritPts_Unique.uptime][Weekday][TIME_WARNING].getTimeFormatted(Use24Hr)));
+                Win.wstr(Win.wstrp(19, 11, L"M: "), strtowstr(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][TIME_MAIN].getTimeFormatted(Use24Hr)));
+                Win.wstr(Win.wstrp(19, 28, L"B: "), strtowstr(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][TIME_BUFFER].getTimeFormatted(Use24Hr)));
+                Win.wstr(Win.wstrp(19, 45, L"W: "), strtowstr(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][TIME_WARNING].getTimeFormatted(Use24Hr)));
 
                 // Current Transition Time
-                Win.wmstr(10, 20, CritPts[Settings_CritPts_Unique.uptime][Weekday][Settings_CritPts_Unique.time].getTimeFormatted(Use24Hr).substr(0, 8), MTEXT_6x6);
+                Win.wmstr(10, 20, CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getTimeFormatted(Use24Hr).substr(0, 8), MTEXT_6x6);
                 if (!Use24Hr) {
                     Win.dbox(10, 53, 3, 6, {HEAVY_BOTH, DASHED_NONE}, NPP_TEAL);
-                    Win.wstr(11, 55, strtowstr(CritPts[Settings_CritPts_Unique.uptime][Weekday][Settings_CritPts_Unique.time].hourSuffix()), NPP_TEAL, "bo");
+                    Win.wstr(11, 55, strtowstr(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].hourSuffix()), NPP_TEAL, "bo");
                 }
 
                 // Add/Remove buttons
@@ -205,6 +219,37 @@ namespace Sleep {
                 Win.dbox(18, 36, 5, 31, {LIGHT_SOFT, DASHED_NONE}, Popups[0][POP_DOWNMAIN] ? NPP_LIME : NPP_RED);
                 Win.wmstr(19, 44, "MAIN", MTEXT_6x6, Popups[0][POP_DOWNMAIN] ? NPP_LIME : NPP_RED);
             }
+            void rPopup_CritPts() {
+                // Frame
+                Win.reset(4, 10, 17, 51);
+                Win.dbox(4, 10, 17, 51, {HEAVY_BOTH, DASHED_NONE});
+                Win.dhline(9, 10, 51, false, {LIGHT_HARD, DASHED_TRIPLE});
+
+                // OK Button
+                Win.dbox(14, 28, 6, 15, {LIGHT_SOFT, DASHED_NONE}, NPP_LIME);
+                Win.wmstr(15, 31, "OK", MTEXT_8x8, NPP_LIME);
+
+                // Title
+                Win.wmstr(5, 13, "!WARNING!", MTEXT_8x8, Now.getSecondNum() % 2 == 0 ? NPP_RED : NPP_ORANGE);
+
+                // Status Message
+                std::vector<char> untilVals;
+                std::string untilStr;
+                if (uptime) {
+                    Win.wstrp(Win.wstrp(10, 24 + (warning ? 4 : 0), L"UPTIME "), warning ? L"IS IN:" : L"BUFFER ENDS IN:");
+                    Win.wstr(12, 31 - (Use24Hr ? 0 : 1), warning ? strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
+                    
+                    untilVals = warning ? Uptime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Uptime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
+                } else {
+                    Win.wstrp(Win.wstrp(10, 23 + (warning ? 4 : 0), L"DOWNTIME "), warning ? L"IS IN:" : L"BUFFER ENDS IN:");
+                    Win.wstr(12, 31 - (Use24Hr ? 0 : 1), warning ? strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
+                    
+                    untilVals = warning ? Downtime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Downtime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
+                }
+
+                untilStr = std::to_string(untilVals[0]) + " hours" + ", " + std::to_string(untilVals[1]) + " minutes" + ", " + std::to_string(untilVals[2]) + " seconds";
+                Win.wstr(11, Win.gdimx() / 2 - untilStr.length() / 2, strtowstr(untilStr));
+            }
 
             bool hHome() {
                 if (RightColumn[0].cclick() == M1_CLICK) {
@@ -212,53 +257,99 @@ namespace Sleep {
                 } else if (RightColumn[1].cclick() == M1_CLICK) {
                     IsCharging = !IsCharging;
                 } else if (RightColumn[2].cclick() == M1_CLICK) {
-                    Screen = SCR_SETTINGS_MAIN;
-                    Win.reset();
-                    Win.dbox();
+                    changeScreen(SCR_SETTINGS_MAIN);
                 }
 
                 return true;
             }
             void hSettings_Main() {
                 if (RightColumn[0].cclick() == M1_CLICK) {
-                    Screen = SCR_HOME;
-                    Win.reset();
-                    Win.dbox();
+                    changeScreen(SCR_HOME);
                 } else if (RightColumn[1].cclick() == M1_CLICK) {
                     Use24Hr = !Use24Hr;
                     Win.reset();
                     Win.dbox();
                 } else if (RightColumn[2].cclick() == M1_CLICK) {
-                    Screen = SCR_SETTINGS_POPUPS;
-                    Win.reset();
-                    Win.dbox();
-                } else if (Settings_Main_Unique.changeUptime.cclick() == M1_CLICK) {
-                    Screen = SCR_SETTINGS_CRITPTS;
-                    Settings_CritPts_Unique.uptime = true;
-                    Win.reset();
-                    Win.dbox();
-                } else if (Settings_Main_Unique.changeDowntime.cclick() == M1_CLICK) {
-                    Screen = SCR_SETTINGS_CRITPTS;
-                    Settings_CritPts_Unique.uptime = false;
-                    Win.reset();
-                    Win.dbox();
+                    changeScreen(SCR_SETTINGS_POPUPS);
+                } else if (Uniques_sMain.changeUptime.cclick() == M1_CLICK) {
+                    changeScreen(SCR_SETTINGS_CRITPTS);
+                    Uniques_sCritPts.uptime = true;
+                } else if (Uniques_sMain.changeDowntime.cclick() == M1_CLICK) {
+                    changeScreen(SCR_SETTINGS_CRITPTS);
+                    Uniques_sCritPts.uptime = false;
                 }
             }
             void hSettings_CritPts() {
+                if (RightColumn[0].cclick() == M1_CLICK) {
+                    changeScreen(SCR_SETTINGS_MAIN);
+                } else if (RightColumn[1].cclick() == M1_CLICK) {
+                    Uniques_sCritPts.copyTime[0] = CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getHourNum();
+                    Uniques_sCritPts.copyTime[1] = CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getMinuteNum();
+                    Uniques_sCritPts.copyTime[2] = CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getSecondNum();
+                } else if (RightColumn[2].cclick() == M1_CLICK) {
+                    CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].setHour(Uniques_sCritPts.copyTime[0]);
+                    CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].setMinute(Uniques_sCritPts.copyTime[1]);
+                    CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].setSecond(Uniques_sCritPts.copyTime[2]);
+                } else if (RightColumn[3].cclick() == M1_CLICK) {
+                    Timing::Alarm source = CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time];
 
+                    for (unsigned char i = 0; i < 7; i++) {
+                        CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time] = source;
+                    }
+                } else if (LeftColumn[0].cclick() == M1_CLICK) {
+                    Uniques_sCritPts.time = TIME_MAIN;
+                    Win.reset();
+                    Win.dbox();
+                } else if (LeftColumn[1].cclick() == M1_CLICK) {
+                    Uniques_sCritPts.time = TIME_BUFFER;
+                    Win.reset();
+                    Win.dbox();
+                } else if (LeftColumn[2].cclick() == M1_CLICK) {
+                    Uniques_sCritPts.time = TIME_WARNING;
+                    Win.reset();
+                    Win.dbox();
+                } else if (LeftColumn[3].cclick() == M1_CLICK) {
+                    Timing::Alarm source = CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time];
+
+                    for (unsigned char i = 0; i < 3; i++) {
+                        CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][i].setHour(source.getHourNum());
+                        CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][i].setMinute(source.getMinuteNum());
+                        CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][i].setSecond(source.getSecondNum());
+                    }
+                } else if (Uniques_sCritPts.addTime[0].cclick() == M1_CLICK) {
+                    CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].setHour(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getHourNum() == 23 ? 0 : CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getHourNum() + 1);
+                } else if (Uniques_sCritPts.addTime[1].cclick() == M1_CLICK) {
+                    CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].setMinute(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getMinuteNum() == 59 ? 0 : CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getMinuteNum() + 1);
+                } else if (Uniques_sCritPts.addTime[2].cclick() == M1_CLICK) {
+                    CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].setSecond(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getSecondNum() == 59 ? 0 : CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getSecondNum() + 1);
+                } else if (Uniques_sCritPts.removeTime[0].cclick() == M1_CLICK) {
+                    CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].setHour(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getHourNum() == 0 ? 23 : CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getHourNum() - 1);
+                } else if (Uniques_sCritPts.removeTime[1].cclick() == M1_CLICK) {
+                    CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].setMinute(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getMinuteNum() == 0 ? 59 : CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getMinuteNum() - 1);
+                } else if (Uniques_sCritPts.removeTime[2].cclick() == M1_CLICK) {
+                    CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].setSecond(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getSecondNum() == 0 ? 59 : CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getSecondNum() - 1);
+                }
+
+                // Change current weekday
+                for (unsigned char i = 0; i < 7; i++) {
+                    if (Uniques_sCritPts.weekdays[i].cclick() == M1_CLICK) {
+                        Uniques_sCritPts.weekday = i;
+                        break;
+                    }
+                }
             }
             void hSettings_Popups() {
                 if (RightColumn[0].cclick() == M1_CLICK) {
                     Screen = SCR_SETTINGS_MAIN;
                     Win.reset();
                     Win.dbox();
-                } else if (Settings_Popups_Unique.upWarning.cclick() == M1_CLICK) {
+                } else if (Uniques_sPopups.upWarning.cclick() == M1_CLICK) {
                     Popups[0][POP_UPWARN] = !Popups[0][POP_UPWARN];
-                } else if (Settings_Popups_Unique.upMain.cclick() == M1_CLICK) {
+                } else if (Uniques_sPopups.upMain.cclick() == M1_CLICK) {
                     Popups[0][POP_UPMAIN] = !Popups[0][POP_UPMAIN];
-                } else if (Settings_Popups_Unique.downWarning.cclick() == M1_CLICK) {
+                } else if (Uniques_sPopups.downWarning.cclick() == M1_CLICK) {
                     Popups[0][POP_DOWNWARN] = !Popups[0][POP_DOWNWARN];
-                } else if (Settings_Popups_Unique.downMain.cclick() == M1_CLICK) {
+                } else if (Uniques_sPopups.downMain.cclick() == M1_CLICK) {
                     Popups[0][POP_DOWNMAIN] = !Popups[0][POP_DOWNMAIN];
                 }
             }
@@ -350,11 +441,6 @@ namespace Sleep {
             RPi() {
                 Win = npp::Window(LINES / 2 - 12, COLS / 2 - 35, 25, 71);
             
-                for (unsigned char i = 0; i < 4; i++) {
-                    LeftColumn.emplace_back(npp::Button(Win.gposy() + 1 + i * 5, Win.gposx() + 2, 5, 7, {M1_CLICK}));
-                    RightColumn.emplace_back(npp::Button(Win.gposy() + 1 + i * 5, Win.gposx() + 62, 5, 7, {M1_CLICK}));
-                }
-
                 for (unsigned char i = 0; i < 2; i++) {
                     CritPts.emplace_back();
                     for (unsigned char j = 0; j < 7; j++) {
@@ -369,15 +455,30 @@ namespace Sleep {
                     // Error
                 }
 
-                Settings_Main_Unique.changeUptime = npp::Button(Win.gposy() + 6, Win.gposx() + 27, 5, 19, {M1_CLICK});
-                Settings_Main_Unique.changeDowntime = npp::Button(Win.gposy() + 11, Win.gposx() + 27, 5, 19, {M1_CLICK});
+                for (unsigned char i = 0; i < 4; i++) {
+                    LeftColumn.emplace_back(npp::Button(Win.gposy() + 1 + i * 5, Win.gposx() + 2, 5, 7, {M1_CLICK}));
+                    RightColumn.emplace_back(npp::Button(Win.gposy() + 1 + i * 5, Win.gposx() + 62, 5, 7, {M1_CLICK}));
+                }
 
-                // a
+                Uniques_sMain.changeUptime = npp::Button(Win.gposy() + 6, Win.gposx() + 27, 5, 19, {M1_CLICK});
+                Uniques_sMain.changeDowntime = npp::Button(Win.gposy() + 11, Win.gposx() + 27, 5, 19, {M1_CLICK});
 
-                Settings_Popups_Unique.upWarning = npp::Button(Win.gposy() + 13, Win.gposx() + 4, 5, 31, {M1_CLICK});
-                Settings_Popups_Unique.upMain = npp::Button(Win.gposy() + 18, Win.gposx() + 4, 5, 31, {M1_CLICK});
-                Settings_Popups_Unique.downWarning = npp::Button(Win.gposy() + 13, Win.gposx() + 36, 5, 31, {M1_CLICK});
-                Settings_Popups_Unique.downMain = npp::Button(Win.gposy() + 18, Win.gposx() + 36, 5, 31, {M1_CLICK});
+                for (unsigned char i = 0; i < 3; i++) {
+                    Uniques_sCritPts.addTime.emplace_back(npp::Button(Win.gposy() + 6, Win.gposx() + 20 + i * 12, 5, 7, {M1_CLICK}));
+                    Uniques_sCritPts.removeTime.emplace_back(npp::Button(Win.gposy() + 12, Win.gposx() + 20 + i * 12, 5, 7, {M1_CLICK}));
+                }
+                for (unsigned char i = 0; i < 7; i++) {
+                    Uniques_sCritPts.weekdays.emplace_back(npp::Button(Win.gposy() + 21, Win.gposx() + 5 + i * 9, 3, 7, {M1_CLICK}));
+                }
+                Uniques_sCritPts.copyTime.emplace_back(CritPts[Uniques_sCritPts.uptime][Weekday][Uniques_sCritPts.time].getHourNum());
+                Uniques_sCritPts.copyTime.emplace_back(CritPts[Uniques_sCritPts.uptime][Weekday][Uniques_sCritPts.time].getMinuteNum());
+                Uniques_sCritPts.copyTime.emplace_back(CritPts[Uniques_sCritPts.uptime][Weekday][Uniques_sCritPts.time].getSecondNum());
+                Uniques_sCritPts.weekday = Weekday;
+
+                Uniques_sPopups.upWarning = npp::Button(Win.gposy() + 13, Win.gposx() + 4, 5, 31, {M1_CLICK});
+                Uniques_sPopups.upMain = npp::Button(Win.gposy() + 18, Win.gposx() + 4, 5, 31, {M1_CLICK});
+                Uniques_sPopups.downWarning = npp::Button(Win.gposy() + 13, Win.gposx() + 36, 5, 31, {M1_CLICK});
+                Uniques_sPopups.downMain = npp::Button(Win.gposy() + 18, Win.gposx() + 36, 5, 31, {M1_CLICK});
 
                 update();
             }
