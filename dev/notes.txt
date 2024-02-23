@@ -1,9 +1,5 @@
 PROGRAM
 Todo:
-    - Add popups for transition points
-        - display time until point (when warning)
-        - display time until buffer ends (when main & buffer enabled)
-        - no popup for buffer
     - Get Pi to detect plugged in phone
     - Add interface to enable/disable uptime/downtime
         - also be able to disable warnings/buffers independently

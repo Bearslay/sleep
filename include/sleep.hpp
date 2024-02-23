@@ -3,7 +3,7 @@
 
 #include "ncursespp.hpp"
 #include "timing.hpp"
-#include <fstream>\
+#include <fstream>
 
 #define PERIOD_DOWNTIME 0
 #define PERIOD_UPTIME 1
@@ -22,6 +22,10 @@
 #define SCR_SETTINGS_CRITPTS 2
 #define SCR_SETTINGS_POPUPS 3
 #define SCR_POPUPS_CRITPTS 4
+
+#define CHARGE_TOTAL 0
+#define CHARGE_DOWNTIME 1
+#define CHARGE_UPTIME 2
 
 namespace Sleep {
     std::wstring strtowstr(std::string input) {
@@ -43,13 +47,20 @@ namespace Sleep {
         }
         return input;
     }
+    std::string secondsToTime(unsigned int input) {
+        unsigned char hours = input / 3600;
+        unsigned char minutes = (input - hours * 3600) / 60;
+        unsigned char seconds = input - hours * 3600 - minutes * 60;
+
+        return (hours < 10 ? "0" : "") + std::to_string(hours) + ":" + (minutes < 10 ? "0" : "") + std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds);
+    }
 
     class RPi {
         private:
             npp::Window Win;
             std::vector<npp::Button> RightColumn, LeftColumn;
             
-            Timing::Alarm Now;
+            Timing::Alarm Now, PrevSecond;
             std::vector<std::vector<std::vector<Timing::Alarm>>> CritPts;
 
             unsigned char Weekday = Timing::mtime.getWeekdayNum();
@@ -62,6 +73,12 @@ namespace Sleep {
 
             std::vector<unsigned int> Charges = {0, 0, 0};
             std::vector<std::vector<bool>> Popups = {{false, false, true, true}, {false, false, false, false}};
+            
+            struct {
+                bool enable = true;
+                std::vector<bool> useBuffer = {true, true};
+
+            } Settings_CritPts;
 
             struct {
                 npp::Button changeUptime, changeDowntime;
@@ -114,6 +131,14 @@ namespace Sleep {
                 Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 3, L"Main Downtime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE, "bo");
                 Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 37, L"Main Uptime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(CritPts[PERIOD_UPTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE, "bo");
             
+                // Charging Amounts
+                Win.dbox(16, 10, 5, 51, {LIGHT_HARD, DASHED_NONE});
+                unsigned int secondsTillCritPt = CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].timeUntil_Seconds(CritPts[PERIOD_UPTIME][Weekday == 6 ? 0 : Weekday + 1][TIME_MAIN]);
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(17, 12, L"Charging [Total]    - "), strtowstr(secondsToTime(Charges[CHARGE_TOTAL])), NPP_WHITE, "bo"), L"   GOAL: "), strtowstr(secondsToTime(secondsTillCritPt)));
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(18, 12, L"Charging [Uptime]   - "), strtowstr(secondsToTime(Charges[CHARGE_UPTIME])), NPP_WHITE, "bo"), L"   GOAL: "), L"N/A", NPP_WHITE, "bo");
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(19, 12, L"Charging [Downtime] - "), strtowstr(secondsToTime(Charges[CHARGE_DOWNTIME])), NPP_WHITE, "bo"), L"   GOAL: "), strtowstr(secondsToTime(secondsTillCritPt)));
+                Win.dvline(16, 43, 5, false, {LIGHT_HARD, DASHED_TRIPLE});
+
                 // Popup Debugging (remove later)
                 for (unsigned char i = 0; i < 4; i++) {
                     Win.dbox(1 + i * 5, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, i % 2 == 0 ? NPP_ORANGE : NPP_YELLOW);
@@ -391,6 +416,7 @@ namespace Sleep {
 
             void update() {
                 Timing::mtime.update(true);
+                PrevSecond = Now;
                 Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
                 Weekday = Timing::mtime.getWeekdayNum();
 
@@ -405,9 +431,17 @@ namespace Sleep {
                     }
                 }
 
+                // Switch from downtime to uptime
+                if (Now.getTimeFormatted() == CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
+                    Charges[CHARGE_UPTIME] = 0;
+                    Charges[CHARGE_DOWNTIME] = 0;
+                    Charges[CHARGE_TOTAL] = 0;
+                }
+
                 // All of the different UIs show the time and have to constantly update it so its rendered here for convenience
                 Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
 
+                // Show popups
                 if (!Popups[1][POP_UPWARN] && Popups[0][POP_UPWARN] && CritPts[PERIOD_UPTIME][Weekday][TIME_WARNING].check()) {
                     Uniques_pCritPts.oldScreen = Screen;
                     Screen = SCR_POPUPS_CRITPTS;
@@ -436,6 +470,25 @@ namespace Sleep {
                     Uniques_pCritPts.uptime = false;
                     Uniques_pCritPts.warning = false;
                     Popups[1][POP_DOWNMAIN] = true;
+                }
+
+                // Switch between uptime and downtime
+                if (Now.getTimeFormatted() == CritPts[PERIOD_DOWNTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
+                    IsUptime = false;
+                } else if (Now.getTimeFormatted() == CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
+                    IsUptime = true;
+                }
+
+                // Check charging
+                if (Now.getTimeFormatted() > PrevSecond.getTimeFormatted()) {
+                    if (IsCharging) {
+                        Charges[CHARGE_TOTAL]++;
+                        Charges[IsUptime + 1]++;
+                    } else {
+                        if (!IsUptime) {
+                            // LOG AN INFRACTION
+                        }
+                    }
                 }
             }
 
@@ -557,6 +610,11 @@ namespace Sleep {
                 Uniques_sPopups.downMain = npp::Button(Win.gposy() + 18, Win.gposx() + 36, 5, 31, {M1_CLICK});
 
                 Uniques_pCritPts.ok = npp::Button(Win.gposy() + 14, Win.gposx() + 28, 6, 15, {M1_CLICK});
+
+                Timing::mtime.update(true);
+                Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
+                Weekday = Timing::mtime.getWeekdayNum();
+                IsUptime = Now.getTimeFormatted() > CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted() ? true : false;
 
                 update();
             }
