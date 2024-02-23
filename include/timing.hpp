@@ -223,7 +223,7 @@ namespace Timing {
             const std::string getYearStr() {return YearStr;}
 
             const std::string getTimeFormatted(bool use24Hr = DefaultParams.Use24Hr) {return getHourStr(use24Hr) + ":" + getMinuteStr() + ":" + getSecondStr() + (!use24Hr ? " " + hourSuffix() : "");}
-            const std::string getDateFormatted(bool full = DefaultParams.FullName, bool addSuffix = DefaultParams.AddSuffix) {return getWeekdayStr(false) + ", " + getMonthStr(false) + " " + getDayStr(true) + ", " + getYearStr();}
+            const std::string getDateFormatted(bool full = DefaultParams.FullName, bool addSuffix = DefaultParams.AddSuffix) {return getWeekdayStr(full) + ", " + getMonthStr(full) + " " + getDayStr(addSuffix) + ", " + getYearStr();}
 
             const unsigned short secondsInMinute() {return SecondNum;}
 

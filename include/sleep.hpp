@@ -585,11 +585,7 @@ namespace Sleep {
                     }
 
                     // Switch from downtime to uptime
-                    if (Now.getTimeFormatted() == CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
-                        Charges[CHARGE_UPTIME] = 0;
-                        Charges[CHARGE_DOWNTIME] = 0;
-                        Charges[CHARGE_TOTAL] = 0;
-                    }
+                    if (Now.getTimeFormatted() == CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {Charges[CHARGE_UPTIME] = Charges[CHARGE_DOWNTIME] = Charges[CHARGE_TOTAL] = 0;}
 
                     // All of the different UIs show the time and have to constantly update it so its rendered here for convenience
                     Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
@@ -626,11 +622,8 @@ namespace Sleep {
                     }
 
                     // Switch between uptime and downtime
-                    if (Now.getTimeFormatted() == CritPts[PERIOD_DOWNTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
-                        IsUptime = false;
-                    } else if (Now.getTimeFormatted() == CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
-                        IsUptime = true;
-                    }
+                    if (Now.getTimeFormatted() == CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].getTimeFormatted()) {IsUptime = false;}
+                    else if (Now.getTimeFormatted() == CritPts[PERIOD_UPTIME][Weekday][TIME_MAIN].getTimeFormatted()) {IsUptime = true;}
 
                     // Check charging
                     if (Now.getTimeFormatted() > PrevSecond.getTimeFormatted()) {
@@ -638,7 +631,7 @@ namespace Sleep {
                             Charges[CHARGE_TOTAL]++;
                             Charges[IsUptime + 1]++;
                         } else {
-                            if (!IsUptime) {
+                            if (!IsUptime && ((Now.getTimeFormatted() > CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].getTimeFormatted() && Now.getTimeFormatted() > CritPts[PERIOD_DOWNTIME][Weekday][TIME_BUFFER].getTimeFormatted()) || (Now.getTimeFormatted() < CritPts[PERIOD_UPTIME][Weekday][TIME_MAIN].getTimeFormatted() && Now.getTimeFormatted() < CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted()))) {
                                 std::ofstream file;
                                 file.open("data/infractions.txt", std::ios::app);
                                 if (!file.is_open()) {
@@ -647,6 +640,9 @@ namespace Sleep {
 
                                     while (Win.gchar(false) == ERR) {}
                                 } else {
+                                    std::string dateString = Timing::mtime.getDateFormatted(false, false).substr(5);
+                                    file << Timing::Keys.monthNums[dateString] << dateString.substr(3) << "|" << Now.getTimeFormatted(true) << "\n";
+
                                     file.close();
                                 }
                             }
