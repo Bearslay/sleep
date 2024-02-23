@@ -876,7 +876,7 @@ namespace Sleep {
                     }
                 }
 
-                if (!writeData) {
+                if (!writeData()) {
                     // Error
                 }
                 return -1;

@@ -54,8 +54,8 @@ namespace Sleep {
 
             unsigned char Weekday = Timing::mtime.getWeekdayNum();
 
-            bool IsCharging;
-            bool Use24Hr;
+            bool IsCharging = false;
+            bool Use24Hr = true;
 
             bool IsUptime;
             unsigned char Screen = SCR_HOME;
@@ -82,6 +82,7 @@ namespace Sleep {
             struct {
                 npp::Button ok;
 
+                unsigned char oldScreen = SCR_HOME;
                 bool uptime, warning;
             } Uniques_pCritPts;
 
@@ -112,6 +113,12 @@ namespace Sleep {
                 Win.dvline(21, 36, 3, false, {LIGHT_HARD, DASHED_TRIPLE}, IsUptime ? NPP_MAGENTA : NPP_PURPLE);
                 Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 3, L"Main Downtime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE, "bo");
                 Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 37, L"Main Uptime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(CritPts[PERIOD_UPTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE, "bo");
+            
+                // Popup Debugging (remove later)
+                for (unsigned char i = 0; i < 4; i++) {
+                    Win.dbox(1 + i * 5, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, i % 2 == 0 ? NPP_ORANGE : NPP_YELLOW);
+                    Win.wmstr(2 + i * 5, 4, i % 2 == 0 ? "W" : "M", MTEXT_6x6, i % 2 == 0 ? NPP_ORANGE : NPP_YELLOW);
+                }
             }
             void rSettings_Main() {
                 // Back
@@ -233,21 +240,11 @@ namespace Sleep {
                 Win.wmstr(5, 13, "!WARNING!", MTEXT_8x8, Now.getSecondNum() % 2 == 0 ? NPP_RED : NPP_ORANGE);
 
                 // Status Message
-                std::vector<char> untilVals;
-                std::string untilStr;
-                if (uptime) {
-                    Win.wstrp(Win.wstrp(10, 24 + (warning ? 4 : 0), L"UPTIME "), warning ? L"IS IN:" : L"BUFFER ENDS IN:");
-                    Win.wstr(12, 31 - (Use24Hr ? 0 : 1), warning ? strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Uptime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
-                    
-                    untilVals = warning ? Uptime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Uptime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
-                } else {
-                    Win.wstrp(Win.wstrp(10, 23 + (warning ? 4 : 0), L"DOWNTIME "), warning ? L"IS IN:" : L"BUFFER ENDS IN:");
-                    Win.wstr(12, 31 - (Use24Hr ? 0 : 1), warning ? strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getMainTime(Use24Hr)) : strtowstr(Downtime[Timing::mtime.getWeekdayNum()].getBufferTime(Use24Hr)));
-                    
-                    untilVals = warning ? Downtime[Timing::mtime.getWeekdayNum()].untilMain_List(Now) : Downtime[Timing::mtime.getWeekdayNum()].untilBuffer_List(Now);
-                }
+                Win.wstrp(Win.wstrp(10, 23 + (Uniques_pCritPts.warning ? 4 : 0) + (Uniques_pCritPts.uptime ? 1 : 0), Uniques_pCritPts.uptime ? L"UPTIME" : L"DOWNTIME"), Uniques_pCritPts.warning ? L" IS IN:" : L" BUFFER ENDS IN:");
+                Win.wstr(12, 31 - (Use24Hr ? 0 : 1), strtowstr(CritPts[Uniques_pCritPts.uptime][Weekday][Uniques_pCritPts.warning ? TIME_WARNING : TIME_MAIN].getTimeFormatted(Use24Hr)));
 
-                untilStr = std::to_string(untilVals[0]) + " hours" + ", " + std::to_string(untilVals[1]) + " minutes" + ", " + std::to_string(untilVals[2]) + " seconds";
+                std::vector<char> untilVals = Now.timeUntil_List(CritPts[Uniques_pCritPts.uptime && Uniques_pCritPts.warning ? PERIOD_UPTIME : PERIOD_DOWNTIME][Weekday][Uniques_pCritPts.warning ? TIME_MAIN : TIME_BUFFER]);
+                std::string untilStr = std::to_string(untilVals[0]) + " hours" + ", " + std::to_string(untilVals[1]) + " minutes" + ", " + std::to_string(untilVals[2]) + " seconds";
                 Win.wstr(11, Win.gdimx() / 2 - untilStr.length() / 2, strtowstr(untilStr));
             }
 
@@ -258,6 +255,36 @@ namespace Sleep {
                     IsCharging = !IsCharging;
                 } else if (RightColumn[2].cclick() == M1_CLICK) {
                     changeScreen(SCR_SETTINGS_MAIN);
+                }
+                // Debugging: remove later
+                else if (LeftColumn[0].cclick() == M1_CLICK) {
+                    Uniques_pCritPts.oldScreen = Screen;
+                    Screen = SCR_POPUPS_CRITPTS;
+
+                    Uniques_pCritPts.uptime = true;
+                    Uniques_pCritPts.warning = true;
+                    Popups[1][POP_UPWARN] = true;
+                } else if (LeftColumn[1].cclick() == M1_CLICK) {
+                    Uniques_pCritPts.oldScreen = Screen;
+                    Screen = SCR_POPUPS_CRITPTS;
+
+                    Uniques_pCritPts.uptime = true;
+                    Uniques_pCritPts.warning = false;
+                    Popups[1][POP_UPMAIN] = true;
+                } else if (LeftColumn[2].cclick() == M1_CLICK) {
+                    Uniques_pCritPts.oldScreen = Screen;
+                    Screen = SCR_POPUPS_CRITPTS;
+
+                    Uniques_pCritPts.uptime = false;
+                    Uniques_pCritPts.warning = true;
+                    Popups[1][POP_DOWNWARN] = true;
+                } else if (LeftColumn[3].cclick() == M1_CLICK) {
+                    Uniques_pCritPts.oldScreen = Screen;
+                    Screen = SCR_POPUPS_CRITPTS;
+
+                    Uniques_pCritPts.uptime = false;
+                    Uniques_pCritPts.warning = false;
+                    Popups[1][POP_DOWNMAIN] = true;
                 }
 
                 return true;
@@ -355,8 +382,10 @@ namespace Sleep {
             }
             void hPopups_CritPts() {
                 if (Uniques_pCritPts.ok.cclick() == M1_CLICK) {
-                    CritPts[Uniques_pCritPts.uptime][Weekday][Uniques_pCritPts.warning ? 2 : 0].acknowledge();
-                    Win.reset();
+                    CritPts[Uniques_pCritPts.uptime][Weekday][Uniques_pCritPts.warning ? TIME_WARNING : TIME_MAIN].acknowledge();
+                    Popups[1][(!Uniques_pCritPts.warning) + (!Uniques_pCritPts.uptime) * 2] = false;
+                    Screen = Uniques_pCritPts.oldScreen;
+                    Win.reset(4, 10, 17, 51);
                 }
             }
 
@@ -365,8 +394,49 @@ namespace Sleep {
                 Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
                 Weekday = Timing::mtime.getWeekdayNum();
 
-                // All of the different UIs show the time and have to constantly update it so its rendered here for funsies
+                // New day happens
+                if (Now.getTimeFormatted() == "00:00:00") {
+                    for (unsigned char i = 0; i < 2; i++) {
+                        for (unsigned char j = 0; j < 7; j++) {
+                            for (unsigned char k = 0; k < 3; k++) {
+                                CritPts[i][j][k].unacknowledge();
+                            }
+                        }
+                    }
+                }
+
+                // All of the different UIs show the time and have to constantly update it so its rendered here for convenience
                 Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
+
+                if (!Popups[1][POP_UPWARN] && Popups[0][POP_UPWARN] && CritPts[PERIOD_UPTIME][Weekday][TIME_WARNING].check()) {
+                    Uniques_pCritPts.oldScreen = Screen;
+                    Screen = SCR_POPUPS_CRITPTS;
+
+                    Uniques_pCritPts.uptime = true;
+                    Uniques_pCritPts.warning = true;
+                    Popups[1][POP_UPWARN] = true;
+                } else if (!Popups[1][POP_UPMAIN] && Popups[0][POP_UPMAIN] && CritPts[PERIOD_UPTIME][Weekday][TIME_MAIN].check()) {
+                    Uniques_pCritPts.oldScreen = Screen;
+                    Screen = SCR_POPUPS_CRITPTS;
+
+                    Uniques_pCritPts.uptime = true;
+                    Uniques_pCritPts.warning = false;
+                    Popups[1][POP_UPMAIN] = true;
+                } else if (!Popups[1][POP_DOWNWARN] && Popups[0][POP_DOWNWARN] && CritPts[PERIOD_DOWNTIME][Weekday][TIME_WARNING].check()) {
+                    Uniques_pCritPts.oldScreen = Screen;
+                    Screen = SCR_POPUPS_CRITPTS;
+
+                    Uniques_pCritPts.uptime = false;
+                    Uniques_pCritPts.warning = true;
+                    Popups[1][POP_DOWNWARN] = true;
+                } else if (!Popups[1][POP_DOWNMAIN] && Popups[0][POP_DOWNMAIN] && CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].check()) {
+                    Uniques_pCritPts.oldScreen = Screen;
+                    Screen = SCR_POPUPS_CRITPTS;
+
+                    Uniques_pCritPts.uptime = false;
+                    Uniques_pCritPts.warning = false;
+                    Popups[1][POP_DOWNMAIN] = true;
+                }
             }
 
             bool readAlarms() {
@@ -486,6 +556,8 @@ namespace Sleep {
                 Uniques_sPopups.downWarning = npp::Button(Win.gposy() + 13, Win.gposx() + 36, 5, 31, {M1_CLICK});
                 Uniques_sPopups.downMain = npp::Button(Win.gposy() + 18, Win.gposx() + 36, 5, 31, {M1_CLICK});
 
+                Uniques_pCritPts.ok = npp::Button(Win.gposy() + 14, Win.gposx() + 28, 6, 15, {M1_CLICK});
+
                 update();
             }
 
@@ -507,6 +579,9 @@ namespace Sleep {
                             break;
                         case SCR_SETTINGS_POPUPS:
                             rSettings_Popups();
+                            break;
+                        case SCR_POPUPS_CRITPTS:
+                            rPopup_CritPts();
                             break;
                     }
                     update();
@@ -530,6 +605,9 @@ namespace Sleep {
                                     break;
                                 case SCR_SETTINGS_POPUPS:
                                     hSettings_Popups();
+                                    break;
+                                case SCR_POPUPS_CRITPTS:
+                                    hPopups_CritPts();
                                     break;
                             }
                         }
