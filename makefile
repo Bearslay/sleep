@@ -5,9 +5,9 @@ default:
 mac:
 	@g++ main.cpp -lncursesw -o bin/main -I include
 	@./bin/main
-new:
-	@g++ new.cpp -lncursesw -o bin/new -I include
-	@./bin/new
+old:
+	@g++ old.cpp -lncursesw -o bin/old -I include
+	@./bin/old
 ui:
 	@mkdir bin -p
 	@g++ ui.cpp -lncursesw -o bin/ui -I include

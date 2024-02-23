@@ -3,7 +3,7 @@
 int main() {
     npp::init(true);
 
-    Sleep::Pi pi;
+    Sleep::RPi pi;
     pi.main();
 
     return npp::end(true);    
