@@ -66,6 +66,7 @@ namespace Sleep {
             unsigned char Weekday = Timing::mtime.getWeekdayNum();
 
             bool IsCharging = false;
+            bool ChargingOverride = false;
             bool Use24Hr = true;
 
             bool IsUptime;
@@ -109,6 +110,9 @@ namespace Sleep {
                 Win.dbox();
             }
 
+            void rError() {
+                Win.wmstr(0, 0, "ERROR", MTEXT_8x8, NPP_RED);
+            }
             void rHome() {
                 // Date
                 Win.wstr(5, 26, strtowstr(Timing::mtime.getDateFormatted(false, true)), NPP_WHITE, "bo");
@@ -278,6 +282,7 @@ namespace Sleep {
                     return false;
                 } else if (RightColumn[1].cclick() == M1_CLICK) {
                     IsCharging = !IsCharging;
+                    ChargingOverride = !ChargingOverride;
                 } else if (RightColumn[2].cclick() == M1_CLICK) {
                     changeScreen(SCR_SETTINGS_MAIN);
                 }
@@ -414,89 +419,11 @@ namespace Sleep {
                 }
             }
 
-            void update() {
-                Timing::mtime.update(true);
-                PrevSecond = Now;
-                Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
-                Weekday = Timing::mtime.getWeekdayNum();
-
-                // New day happens
-                if (Now.getTimeFormatted() == "00:00:00") {
-                    for (unsigned char i = 0; i < 2; i++) {
-                        for (unsigned char j = 0; j < 7; j++) {
-                            for (unsigned char k = 0; k < 3; k++) {
-                                CritPts[i][j][k].unacknowledge();
-                            }
-                        }
-                    }
-                }
-
-                // Switch from downtime to uptime
-                if (Now.getTimeFormatted() == CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
-                    Charges[CHARGE_UPTIME] = 0;
-                    Charges[CHARGE_DOWNTIME] = 0;
-                    Charges[CHARGE_TOTAL] = 0;
-                }
-
-                // All of the different UIs show the time and have to constantly update it so its rendered here for convenience
-                Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
-
-                // Show popups
-                if (!Popups[1][POP_UPWARN] && Popups[0][POP_UPWARN] && CritPts[PERIOD_UPTIME][Weekday][TIME_WARNING].check()) {
-                    Uniques_pCritPts.oldScreen = Screen;
-                    Screen = SCR_POPUPS_CRITPTS;
-
-                    Uniques_pCritPts.uptime = true;
-                    Uniques_pCritPts.warning = true;
-                    Popups[1][POP_UPWARN] = true;
-                } else if (!Popups[1][POP_UPMAIN] && Popups[0][POP_UPMAIN] && CritPts[PERIOD_UPTIME][Weekday][TIME_MAIN].check()) {
-                    Uniques_pCritPts.oldScreen = Screen;
-                    Screen = SCR_POPUPS_CRITPTS;
-
-                    Uniques_pCritPts.uptime = true;
-                    Uniques_pCritPts.warning = false;
-                    Popups[1][POP_UPMAIN] = true;
-                } else if (!Popups[1][POP_DOWNWARN] && Popups[0][POP_DOWNWARN] && CritPts[PERIOD_DOWNTIME][Weekday][TIME_WARNING].check()) {
-                    Uniques_pCritPts.oldScreen = Screen;
-                    Screen = SCR_POPUPS_CRITPTS;
-
-                    Uniques_pCritPts.uptime = false;
-                    Uniques_pCritPts.warning = true;
-                    Popups[1][POP_DOWNWARN] = true;
-                } else if (!Popups[1][POP_DOWNMAIN] && Popups[0][POP_DOWNMAIN] && CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].check()) {
-                    Uniques_pCritPts.oldScreen = Screen;
-                    Screen = SCR_POPUPS_CRITPTS;
-
-                    Uniques_pCritPts.uptime = false;
-                    Uniques_pCritPts.warning = false;
-                    Popups[1][POP_DOWNMAIN] = true;
-                }
-
-                // Switch between uptime and downtime
-                if (Now.getTimeFormatted() == CritPts[PERIOD_DOWNTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
-                    IsUptime = false;
-                } else if (Now.getTimeFormatted() == CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
-                    IsUptime = true;
-                }
-
-                // Check charging
-                if (Now.getTimeFormatted() > PrevSecond.getTimeFormatted()) {
-                    if (IsCharging) {
-                        Charges[CHARGE_TOTAL]++;
-                        Charges[IsUptime + 1]++;
-                    } else {
-                        if (!IsUptime) {
-                            // LOG AN INFRACTION
-                        }
-                    }
-                }
-            }
-
             bool readAlarms() {
                 std::ifstream file;
                 std::string line;
 
-                file.open("data.txt", std::ios::in);
+                file.open("data/data.txt", std::ios::in);
                 if (!file.is_open()) {return false;}
 
                 for (unsigned char i = 0; i < 2; i++) {
@@ -521,7 +448,7 @@ namespace Sleep {
                 std::ifstream file;
                 std::string line;
 
-                file.open("settings.txt", std::ios::in);
+                file.open("data/settings.txt", std::ios::in);
                 if (!file.is_open()) {return false;}
 
                 std::getline(file, line);
@@ -539,7 +466,7 @@ namespace Sleep {
 
             bool writeAlarms() {
                 std::ofstream file;
-                file.open("data.txt", std::ios::out);
+                file.open("data/data.txt", std::ios::out);
                 if (!file.is_open()) {return false;}
 
                 for (unsigned char i = 0; i < 2; i++) {
@@ -556,7 +483,7 @@ namespace Sleep {
             }
             bool writeSettings() {
                 std::ofstream file;
-                file.open("settings.txt", std::ios::out);
+                file.open("data/settings.txt", std::ios::out);
                 if (!file.is_open()) {return false;}
 
                 file << (Popups[0][POP_UPWARN] ? '1' : '0') << (Popups[0][POP_UPMAIN] ? '1' : '0') << (Popups[0][POP_DOWNWARN] ? '1' : '0') << (Popups[0][POP_DOWNMAIN] ? '1' : '0') << "\n" << (Use24Hr ? '1' : '0');
@@ -615,8 +542,6 @@ namespace Sleep {
                 Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
                 Weekday = Timing::mtime.getWeekdayNum();
                 IsUptime = Now.getTimeFormatted() > CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted() ? true : false;
-
-                update();
             }
 
             int main() {
@@ -642,7 +567,91 @@ namespace Sleep {
                             rPopup_CritPts();
                             break;
                     }
-                    update();
+
+                    Timing::mtime.update(true);
+                    PrevSecond = Now;
+                    Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
+                    Weekday = Timing::mtime.getWeekdayNum();
+
+                    // New day happens
+                    if (Now.getTimeFormatted() == "00:00:00") {
+                        for (unsigned char i = 0; i < 2; i++) {
+                            for (unsigned char j = 0; j < 7; j++) {
+                                for (unsigned char k = 0; k < 3; k++) {
+                                    CritPts[i][j][k].unacknowledge();
+                                }
+                            }
+                        }
+                    }
+
+                    // Switch from downtime to uptime
+                    if (Now.getTimeFormatted() == CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
+                        Charges[CHARGE_UPTIME] = 0;
+                        Charges[CHARGE_DOWNTIME] = 0;
+                        Charges[CHARGE_TOTAL] = 0;
+                    }
+
+                    // All of the different UIs show the time and have to constantly update it so its rendered here for convenience
+                    Win.wmstr(1, 20 - (!Use24Hr ? 6 : 0), Timing::mtime.getTimeFormatted(Use24Hr), MTEXT_6x6);
+
+                    // Show popups
+                    if (!Popups[1][POP_UPWARN] && Popups[0][POP_UPWARN] && CritPts[PERIOD_UPTIME][Weekday][TIME_WARNING].check()) {
+                        Uniques_pCritPts.oldScreen = Screen;
+                        Screen = SCR_POPUPS_CRITPTS;
+
+                        Uniques_pCritPts.uptime = true;
+                        Uniques_pCritPts.warning = true;
+                        Popups[1][POP_UPWARN] = true;
+                    } else if (!Popups[1][POP_UPMAIN] && Popups[0][POP_UPMAIN] && CritPts[PERIOD_UPTIME][Weekday][TIME_MAIN].check()) {
+                        Uniques_pCritPts.oldScreen = Screen;
+                        Screen = SCR_POPUPS_CRITPTS;
+
+                        Uniques_pCritPts.uptime = true;
+                        Uniques_pCritPts.warning = false;
+                        Popups[1][POP_UPMAIN] = true;
+                    } else if (!Popups[1][POP_DOWNWARN] && Popups[0][POP_DOWNWARN] && CritPts[PERIOD_DOWNTIME][Weekday][TIME_WARNING].check()) {
+                        Uniques_pCritPts.oldScreen = Screen;
+                        Screen = SCR_POPUPS_CRITPTS;
+
+                        Uniques_pCritPts.uptime = false;
+                        Uniques_pCritPts.warning = true;
+                        Popups[1][POP_DOWNWARN] = true;
+                    } else if (!Popups[1][POP_DOWNMAIN] && Popups[0][POP_DOWNMAIN] && CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].check()) {
+                        Uniques_pCritPts.oldScreen = Screen;
+                        Screen = SCR_POPUPS_CRITPTS;
+
+                        Uniques_pCritPts.uptime = false;
+                        Uniques_pCritPts.warning = false;
+                        Popups[1][POP_DOWNMAIN] = true;
+                    }
+
+                    // Switch between uptime and downtime
+                    if (Now.getTimeFormatted() == CritPts[PERIOD_DOWNTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
+                        IsUptime = false;
+                    } else if (Now.getTimeFormatted() == CritPts[PERIOD_UPTIME][Weekday][TIME_BUFFER].getTimeFormatted()) {
+                        IsUptime = true;
+                    }
+
+                    // Check charging
+                    if (Now.getTimeFormatted() > PrevSecond.getTimeFormatted()) {
+                        if (IsCharging) {
+                            Charges[CHARGE_TOTAL]++;
+                            Charges[IsUptime + 1]++;
+                        } else {
+                            if (!IsUptime) {
+                                std::ofstream file;
+                                file.open("data/infractions.txt", std::ios::app);
+                                if (!file.is_open()) {
+                                    Win.reset();
+                                    rError();
+
+                                    while (Win.gchar(false) == ERR) {}
+                                } else {
+                                    file.close();
+                                }
+                            }
+                        }
+                    }
 
                     if ((ch = Win.gchar(false)) == KEY_MOUSE) {
                         if (npp::Mouse.gmouse(ch)) {
