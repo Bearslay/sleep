@@ -1,16 +1,7 @@
 PROGRAM
 Todo:
     - Get Pi to detect plugged in phone
-    - Add interface to enable/disable uptime/downtime
-        - also be able to disable warnings/buffers independently
     - Get some amount of data collection
         - How long phone is plugged in each night
         - When phone is plugged in/unplugged
     - Figure out why some colors aren't accurate on the Pi
-
-Ideas/Features:
-    - Alt downtime/uptime editing system
-        - change uptime and automatically set downtime
-        - have universal offset for sleep duration (core)
-        - have univseral offsets for buffers and warnings (bonus)
-    - Have extra alarms
