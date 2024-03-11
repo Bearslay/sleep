@@ -72,7 +72,7 @@ namespace Sleep {
             bool IsUptime;
             unsigned char Screen = SCR_HOME;
 
-            std::vector<unsigned int> Charges = {0, 0, 0};
+            std::vector<unsigned int> Charges = {124, 0, 124};
             std::vector<std::vector<bool>> Popups = {{false, false, true, true}, {false, false, false, false}};
             
             struct {
