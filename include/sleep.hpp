@@ -144,10 +144,10 @@ namespace Sleep {
                 Win.dvline(16, 43, 5, false, {LIGHT_HARD, DASHED_TRIPLE});
 
                 // Popup Debugging (remove later)
-                for (unsigned char i = 0; i < 4; i++) {
-                    Win.dbox(1 + i * 5, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, i % 2 == 0 ? NPP_ORANGE : NPP_YELLOW);
-                    Win.wmstr(2 + i * 5, 4, i % 2 == 0 ? "W" : "M", MTEXT_6x6, i % 2 == 0 ? NPP_ORANGE : NPP_YELLOW);
-                }
+                // for (unsigned char i = 0; i < 4; i++) {
+                //     Win.dbox(1 + i * 5, 2, 5, 7, {LIGHT_SOFT, DASHED_NONE}, i % 2 == 0 ? NPP_ORANGE : NPP_YELLOW);
+                //     Win.wmstr(2 + i * 5, 4, i % 2 == 0 ? "W" : "M", MTEXT_6x6, i % 2 == 0 ? NPP_ORANGE : NPP_YELLOW);
+                // }
             }
             void rSettings_Main() {
                 // Back
@@ -574,7 +574,8 @@ namespace Sleep {
                             break;
                     }
 
-                    Timing::mtime.update(true);
+                    Timing::mtime.setTime(1, 1, 19, 20, 43, 23, 2024);
+                    //Timing::mtime.update(true);
                     PrevSecond = Now;
                     Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
                     Weekday = Timing::mtime.getWeekdayNum();
