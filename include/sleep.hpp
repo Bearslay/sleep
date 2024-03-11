@@ -115,7 +115,7 @@ namespace Sleep {
             }
             void rHome() {
                 // Date
-                Win.wstr(5, 26, strtowstr(Timing::mtime.getDateFormatted(false, true)), NPP_WHITE, "bo");
+                Win.wstr(5, 26, strtowstr(Timing::mtime.getDateFormatted(false, true)), NPP_WHITE);
 
                 // Exit
                 Win.dbox(1, 62, 5, 7, {LIGHT_SOFT, DASHED_NONE}, NPP_RED);
@@ -132,15 +132,15 @@ namespace Sleep {
                 // Downtime/Uptime
                 Win.dbox(21, 2, 3, 67, {LIGHT_HARD, DASHED_NONE}, IsUptime ? NPP_MAGENTA : NPP_PURPLE);
                 Win.dvline(21, 36, 3, false, {LIGHT_HARD, DASHED_TRIPLE}, IsUptime ? NPP_MAGENTA : NPP_PURPLE);
-                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 3, L"Main Downtime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE, "bo");
-                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 37, L"Main Uptime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(CritPts[PERIOD_UPTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE, "bo");
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 3, L"Main Downtime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE);
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(22, 37, L"Main Uptime ("), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), L"): "), strtowstr(CritPts[PERIOD_UPTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE);
             
                 // Charging Amounts
                 Win.dbox(16, 10, 5, 51, {LIGHT_HARD, DASHED_NONE});
                 unsigned int secondsTillCritPt = CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].timeUntil_Seconds(CritPts[PERIOD_UPTIME][Weekday == 6 ? 0 : Weekday + 1][TIME_MAIN]);
-                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(17, 12, L"Charging [Total]    - "), strtowstr(secondsToTime(Charges[CHARGE_TOTAL])), NPP_WHITE, "bo"), L"   GOAL: "), strtowstr(secondsToTime(secondsTillCritPt)));
-                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(18, 12, L"Charging [Uptime]   - "), strtowstr(secondsToTime(Charges[CHARGE_UPTIME])), NPP_WHITE, "bo"), L"   GOAL: "), L"N/A", NPP_WHITE, "bo");
-                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(19, 12, L"Charging [Downtime] - "), strtowstr(secondsToTime(Charges[CHARGE_DOWNTIME])), NPP_WHITE, "bo"), L"   GOAL: "), strtowstr(secondsToTime(secondsTillCritPt)));
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(17, 12, L"Charging [Total]    - "), strtowstr(secondsToTime(Charges[CHARGE_TOTAL])), NPP_WHITE), L"   GOAL: "), strtowstr(secondsToTime(secondsTillCritPt)));
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(18, 12, L"Charging [Uptime]   - "), strtowstr(secondsToTime(Charges[CHARGE_UPTIME])), NPP_WHITE), L"   GOAL: "), L"N/A", NPP_WHITE);
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(19, 12, L"Charging [Downtime] - "), strtowstr(secondsToTime(Charges[CHARGE_DOWNTIME])), NPP_WHITE), L"   GOAL: "), strtowstr(secondsToTime(secondsTillCritPt)));
                 Win.dvline(16, 43, 5, false, {LIGHT_HARD, DASHED_TRIPLE});
 
                 // Popup Debugging (remove later)
@@ -166,13 +166,13 @@ namespace Sleep {
                 Win.dbox(6, 27, 5, 19);
                 Win.wstr(7, 31, L"Edit Uptime");
                 Win.wstr(8, 30, L"-------------");
-                Win.wstr(Win.wstrp(Win.wstrp(9, 30 - (Use24Hr ? 0 : 2), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), Use24Hr ? L": " : L" = "), strtowstr(CritPts[PERIOD_UPTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE, "bo");
+                Win.wstr(Win.wstrp(Win.wstrp(9, 30 - (Use24Hr ? 0 : 2), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), Use24Hr ? L": " : L" = "), strtowstr(CritPts[PERIOD_UPTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE);
 
                 // Change Downtime
                 Win.dbox(11, 27, 5, 19);
                 Win.wstr(12, 30, L"Edit Downtime");
                 Win.wstr(13, 30, L"-------------");
-                Win.wstr(Win.wstrp(Win.wstrp(14, 30 - (Use24Hr ? 0 : 2), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), Use24Hr ? L": " : L" = "), strtowstr(CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE, "bo");
+                Win.wstr(Win.wstrp(Win.wstrp(14, 30 - (Use24Hr ? 0 : 2), strtowstr(tupper(Timing::mtime.getWeekdayStr(false)))), Use24Hr ? L": " : L" = "), strtowstr(CritPts[PERIOD_DOWNTIME][Weekday][TIME_MAIN].getTimeFormatted(Use24Hr)), NPP_WHITE);
             }
             void rSettings_CritPts() {
                 // Back
@@ -204,12 +204,12 @@ namespace Sleep {
                 // Weekdays
                 for (unsigned char i = 0; i < 7; i++) {
                     Win.dbox(21, 5 + i * 9, 3, 7, {HEAVY_BOTH, DASHED_NONE}, i == Uniques_sCritPts.weekday ? NPP_LIGHT_GRAY : NPP_DARK_GRAY);
-                    Win.wstr(22, 7 + i * 9, strtowstr(tupper(Timing::Keys.weekdayNamesAbb[i])), i == Uniques_sCritPts.weekday ? NPP_LIGHT_GRAY : NPP_DARK_GRAY, "bo");
+                    Win.wstr(22, 7 + i * 9, strtowstr(tupper(Timing::Keys.weekdayNamesAbb[i])), i == Uniques_sCritPts.weekday ? NPP_LIGHT_GRAY : NPP_DARK_GRAY);
                 }
 
                 // Editing Box
                 Win.dbox(4, 10, 14, 51);
-                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(5, 21 - Uniques_sCritPts.time, L"Editing: ", NPP_WHITE, "bo"), Uniques_sCritPts.uptime ? L"Uptime (" : L"Downtime (", NPP_WHITE, "bo"), Uniques_sCritPts.time == TIME_MAIN ? L"Main" : (Uniques_sCritPts.time == TIME_BUFFER ? L"Buffer" : L"Warning"), NPP_WHITE, "bo"), L" Time)", NPP_WHITE, "bo");
+                Win.wstr(Win.wstrp(Win.wstrp(Win.wstrp(5, 21 - Uniques_sCritPts.time, L"Editing: ", NPP_WHITE), Uniques_sCritPts.uptime ? L"Uptime (" : L"Downtime (", NPP_WHITE), Uniques_sCritPts.time == TIME_MAIN ? L"Main" : (Uniques_sCritPts.time == TIME_BUFFER ? L"Buffer" : L"Warning"), NPP_WHITE), L" Time)", NPP_WHITE);
                 
                 // Information Box
                 Win.dbox(18, 10, 3, 51);
@@ -223,7 +223,7 @@ namespace Sleep {
                 Win.wmstr(10, 20, CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].getTimeFormatted(Use24Hr).substr(0, 8), MTEXT_6x6);
                 if (!Use24Hr) {
                     Win.dbox(10, 53, 3, 6, {HEAVY_BOTH, DASHED_NONE}, NPP_TEAL);
-                    Win.wstr(11, 55, strtowstr(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].hourSuffix()), NPP_TEAL, "bo");
+                    Win.wstr(11, 55, strtowstr(CritPts[Uniques_sCritPts.uptime][Uniques_sCritPts.weekday][Uniques_sCritPts.time].hourSuffix()), NPP_TEAL);
                 }
 
                 // Add/Remove buttons
