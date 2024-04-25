@@ -72,7 +72,7 @@ namespace Sleep {
             bool IsUptime;
             unsigned char Screen = SCR_HOME;
 
-            std::vector<unsigned int> Charges = {124, 0, 124};
+            std::vector<unsigned int> Charges = {0, 0, 0};
             std::vector<std::vector<bool>> Popups = {{false, false, true, true}, {false, false, false, false}};
             
             struct {
@@ -574,8 +574,8 @@ namespace Sleep {
                             break;
                     }
 
-                    Timing::mtime.setTime(1, 1, 19, 20, 43, 23, 2024);
-                    //Timing::mtime.update(true);
+                    // Timing::mtime.setTime(1, 1, 19, 20, 43, 23, 2024);
+                    Timing::mtime.update(true);
                     PrevSecond = Now;
                     Now = Timing::Alarm(Timing::mtime.getHourNum(), Timing::mtime.getMinuteNum(), Timing::mtime.getSecondNum());
                     Weekday = Timing::mtime.getWeekdayNum();
